@@ -6,11 +6,11 @@ other typing engines, cloud requests, or a learned dictionary.
 
 ## Install
 
-Use the **x64** installer for Intel/AMD Windows 10 (22H2) or Windows 11; use **ARM64**
-for native ARM64 apps on Windows 11. No 32-bit binaries are provided. ARM64 builds do
-not yet support x64 apps running under emulation. The preview is a development build,
-not a publicly trusted signed release. Windows may display an unknown-publisher or
-SmartScreen warning. Do not disable system protection to install it.
+Use the **x64** installer for Intel/AMD Windows 10 (22H2) or Windows 11.
+ARM64 is deferred; no ARM64 or 32-bit installer is provided in this preview.
+The preview is a development build, not a publicly trusted signed release. Windows
+may display an unknown-publisher or SmartScreen warning. Do not disable system
+protection to install it.
 
 1. Finish any active composition and close the apps you will test.
 2. Run the matching setup executable; administrator access is needed for TSF registration.
@@ -29,9 +29,11 @@ Windows may require a restart to remove a loaded input-service DLL.
 
 | Action | Behavior |
 | --- | --- |
-| Caps Lock off | English direct typing, no sentence panel |
-| Caps Lock on | Chinese pinyin; the keyboard light is authoritative |
-| Caps Lock during a sentence | Confirm the current candidate and insert the sentence, then switch |
+| Initial mode | English direct typing, no sentence panel |
+| Tap Shift | Switch between Chinese pinyin and English direct typing |
+| Tap Shift during a sentence | Confirm the current candidate and insert the sentence, then switch |
+| Hold Shift with a letter or arrow | Normal uppercase/selection behavior; does not switch language |
+| Caps Lock | Normal capitalization; does not switch language |
 | Space / 1–5 / click | Choose a candidate and keep building the sentence |
 | Arrow keys with pending pinyin | Move candidate highlight |
 | Page Up / Page Down | Previous / next candidate page |
@@ -52,10 +54,10 @@ The candidate window does not take keyboard focus.
 
 ### First test
 
-With Caps Lock **on**, type `nihao`, press **Space**, hold **Shift** to type `CAD`,
+Tap **Shift** to enter Chinese mode, type `nihao`, press **Space**, hold **Shift** to type `CAD`,
 type `ceshi`, then press **Space** and **Enter**. The result should contain Chinese,
 `CAD`, and Chinese again. Try Shift + Left before Enter to select and replace part
-of the sentence. Turn Caps Lock **off** and verify `hello` enters directly.
+of the sentence. Tap **Shift** again and verify `hello` enters directly.
 
 Report the installer architecture, Windows version, application name/version,
 exact keystrokes, expected result, and actual result. Do not include private text.

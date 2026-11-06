@@ -62,7 +62,7 @@ void Editor::resolve(bool literal) {
 void Editor::choose(size_t index) { engine.choose(index); drain(); }
 Result Editor::process(const Input& input) {
     switch (input.key) {
-    case Key::CapsLock: resolve(false); return {false, active(), false};
+    case Key::SwitchLanguage: resolve(false); return {false, active(), false};
     case Key::Tab: resolve(false); return {false, active(), false};
     case Key::Enter:
         if (pending()) { resolve(true); return {}; }

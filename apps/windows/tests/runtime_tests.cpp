@@ -18,8 +18,8 @@ int wmain(int argc,wchar_t** argv){
         editor.process({Key::Enter,{}});
         if(editor.draft.text!=u"你好CADceshi")throw std::runtime_error("mixed sentence mismatch");
         editor.reset();for(char16_t c:std::u16string(u"nihao"))editor.process({Key::Text,{c}});
-        auto outcome=editor.process({Key::CapsLock,{}});
-        if(!outcome.commit||editor.draft.text!=u"你好")throw std::runtime_error("Caps Lock did not confirm source");
+        auto outcome=editor.process({Key::SwitchLanguage,{}});
+        if(!outcome.commit||editor.draft.text!=u"你好")throw std::runtime_error("Language switch did not confirm source");
         editor.reset();engine.type('s');auto first=engine.state();engine.page(false);auto second=engine.state();
         if(first.candidates==second.candidates)throw std::runtime_error("candidate paging failed");
         std::cout<<"Native Rime composition checks passed\n";return 0;

@@ -33,35 +33,45 @@ int wmain(){
         verify(profiles->GetActiveProfile(GUID_TFCAT_TIP_KEYBOARD,&active),"active keyboard profile");
         if(active.clsid!=ServiceId || active.guidProfile!=ProfileId)throw std::runtime_error("SaySpan did not become the test-process keyboard");
         ComPtr<ITfKeystrokeMgr> keys; verify(manager.As(&keys),"keystroke manager");
-        BYTE previous[256]{};GetKeyboardState(previous);BYTE keyboard[256]{};keyboard[VK_CAPITAL]=1;SetKeyboardState(keyboard);
+        BYTE previous[256]{};GetKeyboardState(previous);BYTE keyboard[256]{};SetKeyboardState(keyboard);
         auto key=[&](WPARAM vk){
             SetKeyboardState(keyboard);
             BOOL eat=FALSE; LPARAM flags=static_cast<LPARAM>(MapVirtualKeyW(static_cast<UINT>(vk),MAPVK_VK_TO_VSC))<<16;
             verify(keys->TestKeyDown(vk,flags,&eat),"test key");
-            if(!eat){
-                DWORD session=0; ProcessIdToSessionId(GetCurrentProcessId(),&session);
-                USEROBJECTFLAGS station{}; DWORD bytes=0;
-                GetUserObjectInformationW(GetProcessWindowStation(),UOI_FLAGS,&station,sizeof(station),&bytes);
-                HMODULE tip=GetModuleHandleW(L"SaySpanTip.dll"); DWORD state[5]{};
-                auto snapshot=tip?reinterpret_cast<void(WINAPI*)(DWORD*)>(GetProcAddress(tip,"SaySpanTestState")):nullptr;
-                if(snapshot)snapshot(state);
-                std::cerr<<"Session="<<session<<", visible="<<bool(station.dwFlags&WSF_VISIBLE)<<", loaded="<<bool(tip)
-                         <<", activation="<<state[0]<<", flags="<<state[1]<<", advise="<<std::hex<<state[2]<<std::dec
-                         <<", tests="<<state[3]<<", allowed="<<state[4]<<"\n";
-                std::cerr<<"Rejected key "<<vk<<", caps="<<GetKeyState(VK_CAPITAL)<<", own focus="<<(GetFocus()==edit)<<"\n";throw std::runtime_error("key was not accepted");}
+            if(!eat)throw std::runtime_error("key was not accepted");
             verify(keys->KeyDown(vk,flags,&eat),"key down");pump();
         };
+        auto shiftDown=[&]{keyboard[VK_SHIFT]=0x80;key(VK_SHIFT);};
+        auto shiftUp=[&]{
+            keyboard[VK_SHIFT]=0;SetKeyboardState(keyboard);BOOL eat=FALSE;
+            verify(keys->TestKeyUp(VK_SHIFT,0,&eat),"test Shift release");
+            if(!eat)throw std::runtime_error("Shift release was not observed");
+            verify(keys->KeyUp(VK_SHIFT,0,&eat),"Shift release");pump();
+        };
+        auto directEnglish=[&]{SetKeyboardState(keyboard);BOOL eat=TRUE;keys->TestKeyDown('H',0,&eat);return !eat;};
+        if(!directEnglish())throw std::runtime_error("initial mode is not direct English");
+        shiftDown();shiftUp();
         for(wchar_t c:std::wstring(L"NIHAO"))key(c);
         key(VK_SPACE);key(VK_RETURN);
         wchar_t output[256]{};GetWindowTextW(edit,output,256);
         if(std::wstring(output)!=L"你好")throw std::runtime_error("TSF host text differs from committed sentence");
-        key('N');key('I');key(VK_CAPITAL);
-        GetWindowTextW(edit,output,256);if(wcslen(output)<3)throw std::runtime_error("Caps Lock dropped draft");
-        keyboard[VK_CAPITAL]=0;SetKeyboardState(keyboard);BOOL eat=TRUE;keys->TestKeyDown('H',0,&eat);
-        if(eat)throw std::runtime_error("English mode did not pass through");
+        key('N');key('I');shiftDown();shiftUp();
+        GetWindowTextW(edit,output,256);if(wcslen(output)<3)throw std::runtime_error("Shift switch dropped draft");
+        if(!directEnglish())throw std::runtime_error("Shift did not restore direct English");
+        keyboard[VK_CAPITAL]=1;
+        if(!directEnglish())throw std::runtime_error("Caps Lock changed the language");
+        keyboard[VK_CAPITAL]=0;
+        shiftDown();
+        // A Shift+letter chord must pass through and must not toggle the language.
+        key('A');shiftUp();
+        if(!directEnglish())throw std::runtime_error("Shift letter chord changed the language");
+        shiftDown();shiftUp();key('N');key('I');key(VK_SPACE);
+        shiftDown();key(VK_LEFT);shiftUp();key(VK_BACK);key(VK_RETURN);
+        // Selection with Shift remains Chinese mode; the next spelling is still consumed.
+        key('H');key('A');key('O');key(VK_SPACE);key(VK_RETURN);
         SetKeyboardState(previous);
         profiles->DeactivateProfile(TF_PROFILETYPE_INPUTPROCESSOR,ProfileLanguage,ServiceId,ProfileId,nullptr,TF_IPPMF_FORPROCESS);
         languages->ChangeCurrentLanguage(originalLanguage);pump();DestroyWindow(window);manager->Deactivate();
-        std::cout<<"Native RichEdit TSF insertion and Caps Lock checks passed\n";return 0;
+        std::cout<<"Native RichEdit TSF insertion, Shift switching, chords and Caps Lock checks passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

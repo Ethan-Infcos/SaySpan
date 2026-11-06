@@ -49,7 +49,7 @@ private:
     void save();
 };
 enum class Key { Text, Left, Right, Up, Down, Home, End, Backspace, Delete,
-                 Space, Enter, Tab, Escape, PageUp, PageDown, CapsLock, SelectAll, Undo };
+                 Space, Enter, Tab, Escape, PageUp, PageDown, SwitchLanguage, SelectAll, Undo };
 struct Input { Key key; std::u16string text; bool shift = false; };
 struct Result { bool handled = true; bool commit = false; bool cancel = false; };
 class Editor {

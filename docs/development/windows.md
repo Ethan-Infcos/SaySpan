@@ -1,8 +1,8 @@
 # Windows development
 
 The first Windows preview owns its implementation under `apps/windows/`. It targets
-Windows 10 22H2 / Windows 11 x64 and Windows 11 ARM64. Native host architecture must
-match the DLL; x86 and emulated x64 hosts on ARM64 are not supported in this preview.
+Windows 10 22H2 / Windows 11 x64. ARM64 is deferred after native application-routing
+tests failed on its runner; no ARM64 installer is shipped. There is no x86 support.
 
 ## Boundaries
 
@@ -33,12 +33,13 @@ python apps/windows/tools/build.py --arch x64
 python apps/windows/tools/package.py --arch x64
 ```
 
-Use `ARM64` instead of `x64` on Windows ARM. The build and package scripts perform
+The architecture-aware build code is retained for future ARM64 work, but only x64
+is a current preview target. The build and package scripts perform
 registration round trips, so run them **only in an isolated administrator test
 session**, not on a computer where you are using the installed preview. The host
 test changes only its test thread's keyboard state; it does not inject global keys.
 
-The workflow `.github/workflows/windows.yml` runs separate native x64 and ARM64 jobs.
+The workflow `.github/workflows/windows.yml` runs native x64 checks.
 Dependency archives reuse the SHA-256-pinned manifest in
 `apps/macos/Packaging/Dependencies.json`; the Windows build does not depend on AppKit
 or macOS binaries. Source notices are copied into the payload. The pinyin dictionary
@@ -58,10 +59,13 @@ ctest --test-dir .build/windows-editor --output-on-failure
 
 ## Lifecycle and limits
 
-The OS Caps Lock toggle is authoritative: off passes English directly to the host;
-on composes pinyin. There is no menu override or temporary language mode. During
-composition, Caps Lock confirms the selected source before allowing the native key
-through. Candidate navigation has priority until spelling is resolved.
+Windows uses a short, unmodified Shift tap to switch Chinese/English; it starts in
+English direct mode. Shift used in a chord, or held longer than 500 ms, does not
+change the language. Shift + arrows select sentence text, and Shift + letters retain
+normal capitalization. Caps Lock only controls capitalization. This intentionally
+differs from the macOS Caps Lock contract. Tapping Shift during composition confirms
+and inserts the source text before changing mode. Candidate navigation has priority
+until spelling is resolved.
 
 All document writes use TSF edit sessions with `TF_ES_ASYNCDONTCARE | TF_ES_READWRITE`,
 including hosts that reject synchronous write requests. Callbacks retain their
@@ -87,7 +91,7 @@ remain future work. Do not disable Windows protections or auto-trust a certifica
 
 Use the steps in [the preview guide](../../apps/windows/README.md). Test Notepad,
 Edge/Chrome text fields, a rich editor, and the user's actual work applications on
-both architectures. Check candidate position at multiple DPI settings, mixed-text
-editing, selection replacement, Caps Lock while spelling is pending, switching apps,
+x64. Check candidate position at multiple DPI settings, mixed-text
+editing, selection replacement, Shift switching while spelling is pending, switching apps,
 undo/copy/paste and uninstall. Record unsupported hosts explicitly; passing native
 CI is not a claim that every Windows application works.

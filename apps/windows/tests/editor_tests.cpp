@@ -1,4 +1,5 @@
 #include "editor.h"
+#include "mode_switch.h"
 #include <iostream>
 #include <stdexcept>
 using namespace sayspan;
@@ -19,6 +20,13 @@ public:
     void clear()override{value={};committed.clear();}
 };
 int main(){try {
+    ModeSwitch mode;
+    check(!mode.chinese,"Windows defaults to direct English");
+    mode.down(100,false);check(mode.up(200),"short Shift tap switches");mode.toggle();check(mode.chinese,"Shift selects Chinese");
+    mode.down(300,false);mode.otherKey();check(!mode.up(400),"Shift letter chord does not switch");
+    mode.down(500,false);check(!mode.up(1100),"long Shift hold does not switch");
+    mode.down(1200,true);check(!mode.up(1300),"Ctrl Shift does not switch");
+    mode.down(1400,false);mode.cancelPress();check(!mode.up(1450),"focus change cancels Shift tap");
     Draft d;d.insert(u"A\U0001F600中B");check(d.caret==5,"UTF16 caret");
     d.move(-1,false);d.move(-1,false);d.erase(true);check(d.text==u"A中B","erase complete surrogate");
     d.undo();check(d.text==u"A\U0001F600中B"&&d.caret==3&&d.anchor==3,"undo restores original caret");
@@ -35,8 +43,8 @@ int main(){try {
     e.process({Key::Text,u"n"});e.process({Key::Text,u"'"});e.process({Key::Text,u"i"});
     e.process({Key::Enter,{}});check(e.draft.text==u"你CADni"&&!e.pending(),"enter preserves raw letters without separators");
     auto r=e.process({Key::Enter,{}});check(r.commit&&r.handled,"enter commits resolved sentence");
-    e.reset();e.process({Key::Text,u"n"});r=e.process({Key::CapsLock,{}});
-    check(r.commit&&!r.handled&&e.draft.text==u"你好","Caps confirms source and leaves physical toggle native");
+    e.reset();e.process({Key::Text,u"n"});r=e.process({Key::SwitchLanguage,{}});
+    check(r.commit&&!r.handled&&e.draft.text==u"你好","Language switch confirms source before changing mode");
     e.reset();e.process({Key::Text,u"n"});e.process({Key::PageDown,{}});check(f.pages==1,"page forwarded");
     e.process({Key::Escape,{}});check(!e.active(),"clear pending closes panel");
     e.draft.insert(u"Keep");e.process({Key::SelectAll,{}});check(e.draft.selection()==u"Keep","draft select all");

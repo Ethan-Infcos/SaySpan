@@ -1,6 +1,7 @@
 #include "platform.h"
 #include "panel.h"
 #include "rime_engine.h"
+#include "mode_switch.h"
 #include <functional>
 #include <initguid.h>
 #include <inputscope.h>
@@ -11,8 +12,6 @@
 namespace sayspan {
 HINSTANCE module = nullptr;
 std::atomic<long> objects{0};
-// Process-local counters for the native test harness; never record text or key values.
-static DWORD diagnostics[5]{};
 
 // Edit sessions own the service until Windows grants the document write lock.
 class EditSession final : public ITfEditSession {
@@ -46,6 +45,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
     std::unique_ptr<RimeEngine> engine;
     std::unique_ptr<Editor> editor;
     Panel panel;
+    ModeSwitch mode;
     std::u16string original;
     bool ending = false;
     bool focused = true;
@@ -73,7 +73,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
         bool shift=(GetKeyState(VK_SHIFT)&0x8000)!=0;
         bool control=(GetKeyState(VK_CONTROL)&0x8000)!=0;
         bool alt=(GetKeyState(VK_MENU)&0x8000)!=0;
-        if(vk==VK_CAPITAL) return active()?std::optional<Input>{{Key::CapsLock,{}}}:std::nullopt;
+        if(vk==VK_CAPITAL || vk==VK_SHIFT || vk==VK_LSHIFT || vk==VK_RSHIFT) return std::nullopt;
         if(control || alt || (GetKeyState(VK_LWIN)&0x8000) || (GetKeyState(VK_RWIN)&0x8000)) {
             if(active() && control && !alt) {
                 if(vk=='A') return Input{Key::SelectAll,{}};
@@ -81,7 +81,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
             }
             return std::nullopt;
         }
-        if(!(GetKeyState(VK_CAPITAL)&1) && !active()) return std::nullopt;
+        if(!mode.chinese && !active()) return std::nullopt;
         if(active()) {
             switch(vk) {
             case VK_LEFT:return Input{Key::Left,{},shift}; case VK_RIGHT:return Input{Key::Right,{},shift};
@@ -94,8 +94,6 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
             }
         }
         BYTE state[256]{}; if(!GetKeyboardState(state)) return std::nullopt;
-        // Caps Lock chooses the language; Shift still produces uppercase Latin segments.
-        state[VK_CAPITAL]=0;
         wchar_t text[8]{};
         int count=ToUnicodeEx(static_cast<UINT>(vk),static_cast<UINT>((flags>>16)&0xff),state,text,8,4,GetKeyboardLayout(0));
         if(count>0 && text[0]>=L' ' && (active() || (text[0]>=L'a' && text[0]<=L'z'))) return Input{Key::Text,utf16(std::wstring(text,count)),shift};
@@ -251,12 +249,10 @@ public:
     ULONG STDMETHODCALLTYPE Release() override { auto count=--refs; if(!count) delete this; return count; }
     HRESULT STDMETHODCALLTYPE Activate(ITfThreadMgr* value,TfClientId id) override { return ActivateEx(value,id,0); }
     HRESULT STDMETHODCALLTYPE ActivateEx(ITfThreadMgr* value,TfClientId id,DWORD flags) override {
-        ++diagnostics[0]; diagnostics[1]=flags;
         if(flags&TF_TMAE_SECUREMODE) return E_ACCESSDENIED;
         manager=value; client=id; focused=true;
         ComPtr<ITfKeystrokeMgr> keys; HRESULT hr=manager.As(&keys);
         if(SUCCEEDED(hr)) hr=keys->AdviseKeyEventSink(client,this,TRUE);
-        diagnostics[2]=static_cast<DWORD>(hr);
         if(FAILED(hr)) { manager.Reset(); client=TF_CLIENTID_NULL; return hr; }
         ComPtr<ITfSource> source;
         if(SUCCEEDED(manager.As(&source))) {
@@ -276,19 +272,24 @@ public:
         }
         managerCookie=focusCookie=TF_INVALID_COOKIE; manager.Reset(); client=TF_CLIENTID_NULL; return S_OK;
     }
-    HRESULT STDMETHODCALLTYPE OnSetFocus(BOOL foreground) override { if(!foreground) { focused=false; panel.hide(); } else focused=true; return S_OK; }
+    HRESULT STDMETHODCALLTYPE OnSetFocus(BOOL foreground) override { if(!foreground) { focused=false; mode.cancelPress(); panel.hide(); } else focused=true; return S_OK; }
     HRESULT STDMETHODCALLTYPE OnTestKeyDown(ITfContext* ctx,WPARAM vk,LPARAM flags,BOOL* eaten) override {
         if(!eaten) return E_POINTER; *eaten=FALSE;
-        ++diagnostics[3]; diagnostics[4]=allowed(ctx);
-        try { if(allowed(ctx)) { auto input=key(vk,flags); *eaten=clipboardKey(vk) || input.has_value() || shortcut(vk); } } catch(...) {}
+        try { if(allowed(ctx)) { auto input=key(vk,flags); *eaten=isShift(vk) || mode.pressed || clipboardKey(vk) || input.has_value() || shortcut(vk); } } catch(...) {}
         return S_OK;
     }
     HRESULT STDMETHODCALLTYPE OnKeyDown(ITfContext* ctx,WPARAM vk,LPARAM flags,BOOL* eaten) override {
         if(!eaten) return E_POINTER; *eaten=FALSE;
         try {
-            if(!allowed(ctx)) return S_OK;
+            if(!allowed(ctx)) { mode.cancelPress(); return S_OK; }
+            if(isShift(vk)) {
+                bool modified=(GetKeyState(VK_CONTROL)&0x8000) || (GetKeyState(VK_MENU)&0x8000) ||
+                    (GetKeyState(VK_LWIN)&0x8000) || (GetKeyState(VK_RWIN)&0x8000);
+                mode.down(GetTickCount64(),modified); return S_OK;
+            }
+            mode.otherKey();
             auto input=key(vk,flags); bool clip=clipboardKey(vk);
-            if(!input && !clip) { if(active() && vk!=VK_SHIFT && vk!=VK_CONTROL && vk!=VK_MENU) finishLater(ctx); return S_OK; }
+            if(!input && !clip) { if(active() && vk!=VK_SHIFT && vk!=VK_CONTROL && vk!=VK_MENU && vk!=VK_CAPITAL) finishLater(ctx); return S_OK; }
             if(!engine) { engine=std::make_unique<RimeEngine>(); editor=std::make_unique<Editor>(*engine); }
             ComPtr<ITfContext> target=ctx;
             ++pendingKeys;
@@ -308,12 +309,32 @@ public:
                 if(!focused || !current || current.Get()!=owner.Get()) return finish(cookie);
                 return update(cookie);
             });
-            *eaten=SUCCEEDED(hr) && (clip || (input->key!=Key::CapsLock && input->key!=Key::Tab));
+            *eaten=SUCCEEDED(hr) && (clip || (input->key!=Key::SwitchLanguage && input->key!=Key::Tab));
         } catch(...) { /* Never propagate exceptions into the application hosting the IME. */ }
         return S_OK;
     }
-    HRESULT STDMETHODCALLTYPE OnTestKeyUp(ITfContext*,WPARAM,LPARAM,BOOL* eaten) override { if(!eaten)return E_POINTER; *eaten=FALSE; return S_OK; }
-    HRESULT STDMETHODCALLTYPE OnKeyUp(ITfContext*,WPARAM,LPARAM,BOOL* eaten) override { if(!eaten)return E_POINTER; *eaten=FALSE; return S_OK; }
+    static bool isShift(WPARAM vk) { return vk==VK_SHIFT || vk==VK_LSHIFT || vk==VK_RSHIFT; }
+    HRESULT STDMETHODCALLTYPE OnTestKeyUp(ITfContext*,WPARAM vk,LPARAM,BOOL* eaten) override {
+        if(!eaten)return E_POINTER; *eaten=isShift(vk) && mode.pressed; return S_OK;
+    }
+    HRESULT STDMETHODCALLTYPE OnKeyUp(ITfContext* ctx,WPARAM vk,LPARAM,BOOL* eaten) override {
+        if(!eaten)return E_POINTER; *eaten=FALSE;
+        if(!isShift(vk)) return S_OK;
+        bool tap=mode.up(GetTickCount64());
+        if(!tap || !allowed(ctx)) return S_OK;
+        try {
+            if(!active()) { mode.toggle(); *eaten=TRUE; return S_OK; }
+            ComPtr<ITfContext> target=ctx;
+            HRESULT hr=request(ctx,[this,target](TfEditCookie cookie) {
+                if(context && context.Get()!=target.Get()) return E_UNEXPECTED;
+                HRESULT result=finish(cookie);
+                if(SUCCEEDED(result)) mode.toggle();
+                return result;
+            });
+            *eaten=SUCCEEDED(hr);
+        } catch(...) {}
+        return S_OK;
+    }
     HRESULT STDMETHODCALLTYPE OnPreservedKey(ITfContext*,REFGUID,BOOL* eaten) override { if(!eaten)return E_POINTER; *eaten=FALSE; return S_OK; }
     HRESULT STDMETHODCALLTYPE OnCompositionTerminated(TfEditCookie,ITfComposition* value) override {
         if(!ending && composition.Get()==value) { composition.Reset(); context.Reset(); if(editor)editor->reset(); original.clear(); panel.hide(); ++generation; }
@@ -328,7 +349,7 @@ public:
     HRESULT STDMETHODCALLTYPE OnPushContext(ITfContext*) override { return S_OK; }
     HRESULT STDMETHODCALLTYPE OnPopContext(ITfContext* value) override { if(context.Get()==value)finishLater(); return S_OK; }
     HRESULT STDMETHODCALLTYPE OnSetThreadFocus() override { focused=true; return S_OK; }
-    HRESULT STDMETHODCALLTYPE OnKillThreadFocus() override { focused=false; panel.hide(); finishLater(); return S_OK; }
+    HRESULT STDMETHODCALLTYPE OnKillThreadFocus() override { focused=false; mode.cancelPress(); panel.hide(); finishLater(); return S_OK; }
 };
 class Factory final : public IClassFactory {
     std::atomic<ULONG> refs{1};
@@ -358,5 +379,3 @@ extern "C" HRESULT WINAPI DllGetClassObject(REFCLSID clsid,REFIID iid,void** out
     auto factory=new(std::nothrow)sayspan::Factory;if(!factory)return E_OUTOFMEMORY;
     HRESULT hr=factory->QueryInterface(iid,out);factory->Release();return hr;
 }
-
-extern "C" void WINAPI SaySpanTestState(DWORD* output) { if(output) for(int i=0;i<5;++i)output[i]=sayspan::diagnostics[i]; }

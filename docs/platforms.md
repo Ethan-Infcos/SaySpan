@@ -5,7 +5,7 @@ SaySpan is a multi-platform repository with a macOS application and a Windows in
 ```text
 apps/
   macos/          Native runtime, engines, resources, tests, and installer
-  windows/        Native TSF input/composition preview for x64 and ARM64
+  windows/        Native TSF input/composition preview for x64 (ARM64 deferred)
 docs/
   development/    Platform-specific contributor instructions
 website/          Bilingual product site and user documentation
@@ -64,5 +64,5 @@ Engine libraries can remain third-party dependencies with platform adapters.
 
 Each platform owns its build matrix and release artifacts. Platform signing material
 never belongs in source control. Website deployment remains separate from app releases;
-the public website source must build without production server access. Separate CI validates the website/macOS source and native Windows x64/ARM64
+the public website source must build without production server access. Separate CI validates the website/macOS source and native Windows x64
 preview builds. Native build and integration checks do not replace desktop testing.

@@ -18,8 +18,6 @@ jobs:
         include:
           - arch: x64
             runner: windows-2025
-          - arch: ARM64
-            runner: windows-11-arm
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     steps:
