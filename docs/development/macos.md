@@ -104,9 +104,10 @@ Normal input-method composition does not require this permission.
 
 If SaySpan is missing or blank in the input-source picker, quit System Settings and
 run the installed executable with `--refresh-input-source-cache`. The maintenance
-command registers the bundle and backs up the generated Keyboard Settings cache.
+command backs up the generated Keyboard Settings cache; `--register` is the separate
+command for registering a bundle that has not yet been registered.
 It refuses to run as root or while System Settings is open. The DMG includes the
-same workflow as `Refresh Input Sources.command`. It does not edit the enabled
+combined registration/cache workflow as `Refresh Input Sources.command`. Neither edits the enabled
 input-source list or reset Accessibility permission.
 
 ## Tests and CI
