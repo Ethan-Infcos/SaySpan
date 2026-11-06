@@ -1,0 +1,9 @@
+# A kana-only fallback keeps arbitrary Japanese readings available as candidates.
+---
+name: vokira_japanese_kana
+version: '1.0'
+sort: by_weight
+use_preset_vocabulary: false
+import_tables:
+  - jaroomaji.kana_kigou
+...

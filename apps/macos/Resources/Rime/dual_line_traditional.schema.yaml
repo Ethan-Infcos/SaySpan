@@ -1,0 +1,21 @@
+# The same pinyin dictionary, converted before candidates reach the frontend.
+__include: dual_line.schema:/
+schema:
+  schema_id: dual_line_traditional
+  name: @PRODUCT_NAME@ Traditional Pinyin
+  version: '0.1'
+switches:
+  - name: traditional
+    reset: 1
+engine:
+  filters:
+    - simplifier
+    - uniquifier
+simplifier:
+  option_name: traditional
+  opencc_config: s2t.json
+  tips: none
+translator:
+  dictionary: pinyin_simp
+  user_dict: vokira_traditional
+  enable_user_dict: true

@@ -1,0 +1,55 @@
+# Keep upstream romaji spellings and kana display rules. The input method owns all mode
+# switching, selection, punctuation and commit keys; no upstream key bindings run.
+schema:
+  schema_id: vokira_japanese
+  name: @PRODUCT_NAME@ 日本語
+  version: '1.0'
+switches: []
+engine:
+  processors:
+    - speller
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - abc_segmentor
+    - fallback_segmentor
+  translators:
+    - script_translator
+    - script_translator@kana
+  filters:
+    - uniquifier
+speller:
+  __include: jaroomaji.schema:/speller
+  alphabet: "abcdefghijklmnopqrstuvwxyz-'"
+  initials: "abcdefghijklmnopqrstuvwxyz-"
+  delimiter: "'"
+  algebra:
+    __include: jaroomaji.schema:/speller/algebra
+    __append:
+      - derive/^nn$/n/
+translator:
+  __include: jaroomaji.schema:/translator
+  dictionary: vokira_japanese
+  user_dict: vokira_japanese
+  enable_user_dict: true
+  enable_completion: false
+  enable_sentence: true
+  preedit_format:
+    __include: jaroomaji.schema:/translator/preedit_format
+    __append:
+      - "xform/'//"
+kana:
+  __include: jaroomaji.schema:/translator
+  dictionary: vokira_japanese_kana
+  prism: vokira_japanese_kana
+  enable_user_dict: false
+  enable_completion: false
+  enable_sentence: true
+  initial_quality: -0.5
+  preedit_format:
+    __include: jaroomaji.schema:/translator/preedit_format
+    __append:
+      - "xform/'//"
+menu:
+  page_size: 15

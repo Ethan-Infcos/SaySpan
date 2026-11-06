@@ -1,0 +1,12 @@
+{
+  "version": "0.1.37",
+  "build": 39,
+  "date": "2026-11-05",
+  "file": "SaySpan-0.1.37-macOS15-arm64-unsigned.dmg",
+  "bytes": 44705439,
+  "sha256": "660a0c662f3851d07efae17bb5ecb39c07974fc0cd98fd0557c6a0a4263694b1",
+  "platform": "macOS 15+",
+  "architecture": "Apple Silicon",
+  "channel": "development-preview",
+  "notarized": false
+}

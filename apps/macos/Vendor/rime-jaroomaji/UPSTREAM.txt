@@ -1,0 +1,2 @@
+https://github.com/lazyfoxchan/rime-jaroomaji
+Commit: b743307c0251f388976662ee2f9e267043785116

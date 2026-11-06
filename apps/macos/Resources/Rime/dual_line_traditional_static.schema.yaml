@@ -1,0 +1,9 @@
+__include: dual_line_traditional.schema:/
+schema:
+  schema_id: dual_line_traditional_static
+  name: @PRODUCT_NAME@ Traditional Pinyin (without learning)
+  version: '0.1'
+translator:
+  dictionary: pinyin_simp
+  user_dict: vokira_traditional
+  enable_user_dict: false

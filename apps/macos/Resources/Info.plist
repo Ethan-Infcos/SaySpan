@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>local.inputmethod.DualLineIME</string>
+<key>CFBundleExecutable</key><string>@PRODUCT_NAME@</string>
+<key>CFBundleName</key><string>@PRODUCT_NAME@</string>
+<key>CFBundleDisplayName</key><string>@PRODUCT_NAME@</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleDevelopmentRegion</key><string>en</string>
+<key>CFBundleLocalizations</key><array><string>en</string><string>zh-Hans</string></array>
+<key>CFBundleVersion</key><string>39</string>
+<key>CFBundleShortVersionString</key><string>0.1.37</string>
+<key>LSMinimumSystemVersion</key><string>27.0</string>
+<key>LSUIElement</key><true/>
+<key>NSPrincipalClass</key><string>NSApplication</string>
+<key>InputMethodConnectionName</key><string>DualLineIME_Connection</string>
+<key>InputMethodServerControllerClass</key><string>DualLineController</string>
+<key>TISInputSourceID</key><string>local.inputmethod.DualLineIME</string>
+<!-- An empty intended language places this multilingual source in Others. -->
+<key>TISIntendedLanguage</key><string></string>
+<key>TICapsLockLanguageSwitchCapable</key><false/>
+<key>tsInputMethodCharacterRepertoireKey</key><array><string>Zyyy</string></array>
+<key>ComponentInputModeDict</key><dict>
+  <key>tsInputModeListKey</key><dict>
+    <key>local.inputmethod.DualLineIME.Hans</key><dict>
+      <key>TISInputSourceID</key><string>local.inputmethod.DualLineIME.Hans</string>
+      <key>TISIntendedLanguage</key><string></string>
+      <key>tsInputModeDefaultStateKey</key><true/>
+      <key>tsInputModeIsVisibleKey</key><true/>
+      <key>tsInputModeScriptKey</key><string>smUnicodeScript</string>
+      <key>tsInputModeMenuIconFileKey</key><string>MenuIcon.pdf</string>
+      <key>tsInputModeAlternateMenuIconFileKey</key><string>MenuIcon.pdf</string>
+      <key>tsInputModeCharacterRepertoireKey</key><array><string>Zyyy</string></array>
+    </dict>
+  </dict>
+  <key>tsVisibleInputModeOrderedArrayKey</key><array><string>local.inputmethod.DualLineIME.Hans</string></array>
+</dict>
+</dict></plist>

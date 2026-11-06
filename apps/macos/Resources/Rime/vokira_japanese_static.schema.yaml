@@ -1,0 +1,9 @@
+# Japanese candidates without personal lookup or learning.
+__include: vokira_japanese.schema:/
+schema:
+  schema_id: vokira_japanese_static
+  name: @PRODUCT_NAME@ 日本語 (Base dictionary)
+  version: '1.0'
+translator:
+  dictionary: vokira_japanese
+  enable_user_dict: false

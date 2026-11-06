@@ -1,0 +1,388 @@
+{
+  "nav": [
+    "Features",
+    "How it works",
+    "Documentation",
+    "Download"
+  ],
+  "skip": "Skip to content",
+  "menu": "Open navigation",
+  "tagline": "A little less lost in translation.",
+  "hero": {
+    "eyebrow": "THINK IT. TYPE IT. SAY IT.",
+    "title": "Your words.<br>Across <em>languages.</em>",
+    "description": "Write in the language that comes naturally. SaySpan brings the translation right into your input method, so your next thought can keep moving.",
+    "download": "Get SaySpan on GitHub",
+    "guide": "See how it works",
+    "meta": "macOS 15+ · Apple Silicon · Development preview",
+    "caption": "An illustration of the SaySpan workflow. Example translations, not a live model.",
+    "write": "Write & translate",
+    "read": "Select & understand",
+    "mockApp": "A message to your team",
+    "mockGreeting": "Hi everyone,",
+    "mockSource": "我们明天上午十点见。",
+    "mockTarget": "Let’s meet tomorrow at 10 AM.",
+    "mockFooter": "Your next thought starts here.",
+    "source": "Source",
+    "target": "English",
+    "ready": "Ready to insert",
+    "enter": "Insert source",
+    "tab": "Insert translation",
+    "selection": "Selection translation",
+    "readSource": "Good ideas deserve to travel.",
+    "readTarget": "好想法，值得跨越语言。",
+    "readHint": "Select a sentence. Get the meaning, right beside it.",
+    "copy": "Copy example translation",
+    "copied": "Copied",
+    "copyFailed": "Could not copy. Select the text to copy it manually.",
+    "swap": "Try another example"
+  },
+  "strip": [
+    "Native macOS input",
+    "Local or online models",
+    "Your choice of languages"
+  ],
+  "features": {
+    "eyebrow": "LESS SWITCHING. MORE SAYING.",
+    "title": "Stay with the thought.",
+    "description": "From the sentence you’re writing to the passage you’re reading, translation fits into the moment.",
+    "writeTitle": "Compose first.<br>Choose what to say.",
+    "writeText": "Build and edit a full sentence, with your translation just below it. Press Enter for the original, or Tab for the translation when it’s ready.",
+    "writeLink": "Explore sentence input",
+    "readTitle": "A new language.<br>A familiar meaning.",
+    "readText": "Select text in a supported app or webpage. Click the translation button, or turn on automatic display. Copy the result when you need it.",
+    "readLink": "Set up selection translation",
+    "small": [
+      [
+        "01",
+        "Two languages. One rhythm.",
+        "Choose your language pair. Caps Lock off uses the first; on uses the second. Translation goes the other way automatically."
+      ],
+      [
+        "02",
+        "Words that feel like yours.",
+        "Chinese and Japanese candidate ranking can learn from the words you confirm. Personal vocabulary stays on your Mac."
+      ],
+      [
+        "03",
+        "Room for the whole sentence.",
+        "Move, select, copy, cut, paste and undo within your draft. Mix Chinese and English without losing the thread."
+      ]
+    ]
+  },
+  "models": {
+    "eyebrow": "YOUR MODEL. YOUR CALL.",
+    "title": "Choose where<br>your words go.",
+    "description": "Use a local Ollama model, or connect an online service with an OpenAI-compatible API. Change models and translation instructions in Settings.",
+    "local": "On your Mac",
+    "localText": "With a locally running Ollama model, translation inference stays on your device. Install Ollama and download a model separately.",
+    "online": "With your provider",
+    "onlineText": "Bring your endpoint, model and API key. Text goes to your selected provider; its pricing and data policies apply.",
+    "link": "Find your setup",
+    "keychain": "Online API keys are stored in macOS Keychain."
+  },
+  "steps": {
+    "eyebrow": "A SMALL CHANGE TO YOUR DAY.",
+    "title": "Three steps to your next sentence.",
+    "items": [
+      [
+        "Add SaySpan",
+        "Install the Mac preview, then add SaySpan under Others in Keyboard settings."
+      ],
+      [
+        "Make it yours",
+        "Choose two languages and connect a local model or your online provider."
+      ],
+      [
+        "Start a conversation",
+        "Type, choose your candidates, and insert the original or its translation."
+      ]
+    ],
+    "link": "Read the getting-started guide"
+  },
+  "faq": {
+    "title": "A few things to know.",
+    "items": [
+      [
+        "Which Macs can run SaySpan?",
+        "The current DMG targets Apple Silicon Macs with macOS 15 or later. Intel Macs, Windows and Linux are not supported by this release. It is a development preview; a clean Mac and macOS 15 have not yet been tested live."
+      ],
+      [
+        "Do I need an AI subscription?",
+        "No subscription is required by SaySpan. You can use a separately installed local Ollama model. Online services require your own credentials and may charge for API usage."
+      ],
+      [
+        "Does everything I type get sent to a model?",
+        "No. English direct typing does not request translation. During composition, the confirmed draft is sent to your chosen model after a short pause. Selection translation sends the selected text, not the surrounding document."
+      ],
+      [
+        "Can I type every supported translation language?",
+        "Translation offers a 16-language pair selector. Typing support differs: Chinese uses pinyin, Japanese uses romaji candidates, and several languages use native keyboard layouts. Korean translation is supported, but Korean syllable input is not available yet."
+      ],
+      [
+        "Where can I follow the project?",
+        "The public SaySpan repository is on <a href=\"{repository}\">GitHub</a>. Check the repository for source availability, project updates and release announcements."
+      ]
+    ]
+  },
+  "closing": [
+    "Your next conversation,<br>a little closer.",
+    "Explore SaySpan on GitHub",
+    "Read the documentation"
+  ],
+  "footer": {
+    "description": "Think in your language. Say it in another.",
+    "product": "Product",
+    "resources": "Resources",
+    "privacy": "Privacy & data",
+    "release": "Release notes",
+    "note": "An independent project. Made for conversations across languages.",
+    "status": "macOS preview"
+  },
+  "download": {
+    "eyebrow": "MEET YOUR NEXT INPUT METHOD.",
+    "title": "Bring SaySpan<br>to your Mac.",
+    "description": "Follow SaySpan’s development on GitHub. Downloads and release availability are managed through the repository; this website does not host installers.",
+    "label": "Development preview",
+    "button": "View project on GitHub",
+    "requirements": "macOS 15 or later · Apple Silicon only",
+    "noticeTitle": "An early build, with clear expectations.",
+    "notice": "This build is not Developer ID-signed or notarized. macOS may block the installer. Read the installation guide before opening it. Clean-machine installation and macOS 15 execution remain unverified.",
+    "guide": "Installation guide",
+    "next": "When an installer is available",
+    "steps": [
+      [
+        "Install for your account",
+        "Open the DMG and run Install SaySpan.pkg. The app is installed in your user Library’s Input Methods folder."
+      ],
+      [
+        "Add the input source",
+        "Quit System Settings, run Refresh Input Sources.command from the DMG, then add SaySpan under Keyboard → Text Input → Edit → + → Others."
+      ],
+      [
+        "Connect a model",
+        "Open SaySpan Settings from the input menu. Choose Ollama or an OpenAI-compatible provider and save your configuration."
+      ]
+    ],
+    "releaseTitle": "What’s in 0.1.37",
+    "releaseNotes": [
+      "Unified SaySpan name and S icon across the app and installer.",
+      "Correct registration under Others, with a helper for a stale input-source picker cache.",
+      "Chinese pinyin, Japanese romaji candidates, sentence editing and optional selection translation.",
+      "1,023 automated checks passed on the development Mac. Physical Caps Lock switching and Chinese candidates were confirmed there."
+    ],
+    "otherPlatforms": "Other platforms",
+    "otherText": "This release is for Apple Silicon macOS only. Windows, Linux and Intel installers are not available.",
+    "repositoryNote": "Downloads and updates via GitHub",
+    "repositoryTitle": "One home for the project.",
+    "repositoryText": "Find the project, follow its progress and check release availability on GitHub. The installation steps on this site apply when a compatible package is available."
+  },
+  "docs": {
+    "eyebrow": "SAYSPAN DOCUMENTATION",
+    "title": "A good place to start.",
+    "description": "From your first sentence to a setup that feels like you.",
+    "search": "Search the documentation",
+    "noResults": "No matching guides. Try “model”, “Caps Lock” or “selection”.",
+    "contents": "On this page",
+    "back": "All guides",
+    "next": "Next guide",
+    "version": "For SaySpan 0.1.37",
+    "guideLabel": "GUIDE",
+    "items": [
+      {
+        "slug": "quick-start",
+        "title": "Getting started",
+        "summary": "Install SaySpan, add the input source, and write your first sentence.",
+        "sections": [
+          [
+            "before-you-start",
+            "Before you start",
+            "<p>You need an Apple Silicon Mac running macOS 15 or later. The current release is a development preview, not Developer ID-signed or notarized. It has been checked on the development Mac; clean-machine installation and execution on macOS 15 remain unverified.</p><p>Translation needs a model: either a separately installed local Ollama model or your own OpenAI-compatible online service. Basic typing does not depend on successful translation.</p>"
+          ],
+          [
+            "install",
+            "1. Install the preview",
+            "<ol><li>Visit the <a href='{repository}'>SaySpan GitHub repository</a> to check release availability. When a DMG is published there, download the compatible build. This website does not host installers.</li><li>Finish any unfinished draft and switch to another input source before updating.</li><li>Open the DMG and run <strong>Install SaySpan.pkg</strong>. Install it for the current user.</li></ol><p>The app lives at <code>~/Library/Input Methods/SaySpan.app</code>. It is not installed in the usual Applications folder. If macOS blocks it, review <a href='https://support.apple.com/en-us/102445'>Apple’s guidance for opening apps safely</a>. Only proceed if you trust this development build.</p>"
+          ],
+          [
+            "enable",
+            "2. Add SaySpan to your input sources",
+            "<ol><li>Quit System Settings completely.</li><li>Open <strong>Refresh Input Sources.command</strong> in the mounted DMG. It refreshes a generated input-source cache and opens Keyboard settings.</li><li>Choose <strong>Keyboard → Text Input → Edit → + → Others → SaySpan → Add</strong>.</li><li>Select SaySpan in the macOS input menu.</li></ol><p>A first installation may require logging out and back in. The refresh helper backs up the cache; it does not change your enabled input sources, preferences or permissions.</p>"
+          ],
+          [
+            "configure",
+            "3. Choose your languages and model",
+            "<p>With SaySpan selected, open the macOS input menu and choose <strong>Settings…</strong>. In <strong>Languages</strong>, choose First language and Second language. The defaults are English and Simplified Chinese.</p><p>In <strong>Models</strong>, choose a local Ollama model or configure your online provider. Save your changes. See <a href='../models/'>Models & prompts</a> for the full setup.</p>"
+          ],
+          [
+            "first-sentence",
+            "4. Try your first sentence",
+            "<p>With the default English/Chinese pair, turn physical Caps Lock on to use Chinese. Type <code>nihao</code>, then press Space to confirm <strong>你好</strong>. Press Enter to insert the original. Or wait for a translation and press Tab to insert it.</p><p>Turn Caps Lock off to type English directly. The active macOS input source remains SaySpan. Use Shift for uppercase letters.</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "writing",
+        "title": "Writing & keyboard controls",
+        "summary": "Choose candidates, edit your sentence, and insert either language.",
+        "sections": [
+          [
+            "candidates",
+            "Build a sentence",
+            "<p>Chinese pinyin and Japanese romaji use a candidate list above the editable sentence. Space confirms the highlighted candidate. Number keys or a click select a visible numbered candidate.</p><p>While candidates are pending, all four arrow keys navigate them. Down or Page Down expands the list into multiple rows. Continue past an edge to move between pages. Page Up and Page Down jump pages once expanded.</p><p>Each row shows five candidates by default. Set 3–9 in <strong>Settings → Input</strong>. Long candidates wrap to fit the available space.</p>"
+          ],
+          [
+            "edit",
+            "Edit before inserting",
+            "<p>Once every pending candidate is confirmed, the arrows move the sentence caret. Up and Down move between visual lines. Hold Shift with an arrow to select part of the confirmed sentence.</p><p>Command+A, C, X, V and Z perform select-all, copy, cut, paste and undo inside the draft. Command+Shift+Z redoes. Delete and typing act on the selected section. Clearing the entire draft closes the panel; undo can restore it.</p>"
+          ],
+          [
+            "shortcuts",
+            "The keys that matter",
+            "<div class='table-wrap'><table><thead><tr><th>Key</th><th>What it does</th></tr></thead><tbody><tr><td>Space</td><td>Confirm the highlighted candidate; insert a space when no candidate is pending.</td></tr><tr><td>Enter</td><td>With pending spelling: keep the raw Latin letters in the draft. Otherwise: insert the original sentence.</td></tr><tr><td>Tab</td><td>Insert the ready translation after candidates have been confirmed. An early Tab does not queue a later insertion.</td></tr><tr><td>Escape</td><td>Clear a selection, collapse expanded candidates, clear spelling or cancel the draft, depending on the current state.</td></tr><tr><td>Caps Lock</td><td>Off: first language. On: second language. During composition, insert the source sentence before switching.</td></tr></tbody></table></div><p>Enter and Tab insertion do not send a Return to the host app or submit its form.</p>"
+          ],
+          [
+            "mixed",
+            "Mix Chinese and English",
+            "<p>To keep an English word inside a Chinese sentence, type its letters and press Enter before choosing a candidate. The letters become part of your draft, without pinyin separators. A standalone Shift tap does the same while spelling is pending.</p><p>For example: <code>hello → Enter → Space → shijie → Space</code> creates <strong>hello 世界</strong>. Press Enter again to insert the draft, or Tab for its ready translation. Shift+letter inserts uppercase Latin text; punctuation follows the current language.</p>"
+          ],
+          [
+            "learning",
+            "Let your vocabulary settle in",
+            "<p>Under <strong>Settings → Input</strong>, candidate learning can prioritize Chinese and Japanese words and phrases you confirm. This vocabulary stays on your Mac and survives restarts. Turning learning off preserves it but uses the base ranking.</p><p>Confirming a candidate may teach the dictionary before the sentence is inserted. Canceling that draft does not undo an already learned conversion.</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "selection",
+        "title": "Selection translation",
+        "summary": "Understand text in other apps without replacing the original.",
+        "sections": [
+          [
+            "permission",
+            "Enable selection translation",
+            "<p>Open <strong>Settings → Selection</strong> and enable selection translation. Then grant <strong>SaySpan</strong> access in <strong>System Settings → Privacy & Security → Accessibility</strong>.</p><p>If it is missing from the permission list, use the + button and navigate to <code>~/Library/Input Methods/SaySpan.app</code>. In a file picker, Command+Shift+G lets you enter the folder path. This permission is only needed for reading selections in other apps; normal input does not need it.</p>"
+          ],
+          [
+            "translate",
+            "Select, then translate",
+            "<p>Select text in a supported document or webpage. Click the small translation button beside the selection. The card stays at its initial position instead of following your mouse. The small copy icon at the top right copies the result.</p><p>Enable <strong>Automatic translation</strong> in the card or Settings to show the result after a selection settles, without clicking the button. This choice is saved immediately. Click outside to dismiss; reselect the text to retry.</p>"
+          ],
+          [
+            "direction",
+            "Direction follows your pair",
+            "<p>SaySpan detects which of your two configured languages the selection uses and translates it into the other. Mixed text uses the dominant language. When detection is uncertain, selection translation targets the first language.</p><p>Selection translation pauses while you are composing in SaySpan, so the draft does not produce a second popup.</p>"
+          ],
+          [
+            "formatting",
+            "Formatting and app support",
+            "<p>Line breaks, blank lines, indentation and list markers are preserved where the source app exposes them and the model’s output allows it. This is plain-text formatting, not font, color or rich-text styling.</p><p>The host must expose selected text through macOS Accessibility. Password fields and image OCR are not supported. Some Chromium-based apps take a few seconds to expose their contents. Selections over 6,000 UTF-16 code units are rejected before being sent to the model.</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "models",
+        "title": "Models & translation prompts",
+        "summary": "Set up local Ollama or connect your own compatible online API.",
+        "sections": [
+          [
+            "ollama",
+            "Local translation with Ollama",
+            "<ol><li>Install and open <a href='https://ollama.com/download/mac'>Ollama for macOS</a>.</li><li>Download a local model. For the app’s default model, run <code>ollama pull qwen2.5:3b</code> in Terminal.</li><li>In <strong>SaySpan Settings → Models</strong>, choose Ollama, refresh the model list, select the downloaded model and Save.</li></ol><p>The default local service is <code>http://127.0.0.1:11434</code>. Ollama and model weights are not included in the DMG. Model size, supported languages and speed vary with the model and hardware. See <a href='https://docs.ollama.com/quickstart'>Ollama’s quickstart</a> for service setup.</p>"
+          ],
+          [
+            "online",
+            "Use an online provider",
+            "<p>Select the OpenAI-compatible online provider. Enter your service’s API base URL, API key and text-chat model ID. Refresh the model list if supported, or enter the ID manually. The endpoint must support <code>/chat/completions</code>; discovery uses <code>/models</code>.</p><p>Use the base URL documented by your provider, not a full chat-completions URL. HTTPS is required except for explicit localhost services. Separate protocols such as Anthropic Messages are not implemented.</p><p>API keys are stored in macOS Keychain per endpoint. Leave the key field empty to keep an existing key for that endpoint. Online requests send the draft or selection to that provider and may incur charges. There is no silent fallback to another provider.</p>"
+          ],
+          [
+            "reasoning",
+            "Keep reasoning simple",
+            "<p>Start with <strong>Lowest (recommended)</strong>. SaySpan maps recognized model families to their minimum supported setting. For an unknown model, it uses the service default.</p><p>If your provider rejects a reasoning parameter, choose <strong>Service default</strong>. Available levels depend on the provider and model; a higher setting is not a guarantee of better translation.</p>"
+          ],
+          [
+            "prompt",
+            "Make the instructions yours",
+            "<p>Under <strong>Settings → Prompt</strong>, edit the shared translation instructions in English or Chinese. They apply to both sentence and selection translation after saving.</p><p>Direction and formatting rules are added automatically. The default prompt asks the model to preserve details, negation, conditions and who performs each action, without extra explanations. You can restore the default and save. Always review important translations; model output can still be wrong.</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "languages",
+        "title": "Languages & switching",
+        "summary": "Configure your language pair and understand available input engines.",
+        "sections": [
+          [
+            "pair",
+            "Two languages, both directions",
+            "<p>In <strong>Settings → Languages</strong>, choose two different languages. Caps Lock off selects the first; on selects the second. The physical keyboard state is authoritative. Menu entries report the language and cannot switch it.</p><p>During composition, Caps Lock confirms the highlighted candidate, inserts the source sentence, then switches. There is no temporary language mode. Hold Shift to type uppercase English.</p>"
+          ],
+          [
+            "engines",
+            "Typing support in this release",
+            "<div class='table-wrap'><table><thead><tr><th>Language</th><th>Input method</th></tr></thead><tbody><tr><td>Simplified Chinese</td><td>Rime pinyin with candidate learning.</td></tr><tr><td>Traditional Chinese</td><td>Pinyin with OpenCC conversion; not Zhuyin or Cangjie.</td></tr><tr><td>Japanese</td><td>Rime romaji with kana and kanji candidates. Phrase conversion, not the full Mozc engine.</td></tr><tr><td>English, Indonesian</td><td>ABC layout.</td></tr><tr><td>French, German, Spanish, Portuguese, Italian</td><td>The corresponding macOS keyboard layout, including native accents.</td></tr><tr><td>Russian, Arabic, Hindi, Thai, Vietnamese</td><td>The corresponding macOS keyboard layout. No alternate phonetic layouts yet.</td></tr><tr><td>Korean</td><td>Translation supported; Hangul composition is not yet available. Current typing falls back to ABC.</td></tr></tbody></table></div><p>English stays direct: ordinary English typing does not open the translation panel. Select English text afterward to translate it. The sentence candidate workflow is provided by the Chinese and Japanese engines.</p>"
+          ],
+          [
+            "interface",
+            "Website and app language",
+            "<p>The app’s interface supports English and Simplified Chinese. <strong>Settings → General → Interface language</strong> follows the system by default, with manual overrides. Save and reopen Settings to refresh its labels.</p><p>The website has its own language switch. It remembers your choice in this browser. Interface language does not change your input language pair.</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "troubleshooting",
+        "title": "Troubleshooting",
+        "summary": "Missing input sources, model errors and selection permissions.",
+        "sections": [
+          [
+            "missing",
+            "SaySpan is missing or blank in Keyboard settings",
+            "<p>Quit System Settings, then run <strong>Refresh Input Sources.command</strong> from the DMG. Reopen the input-source picker and look under <strong>Others</strong>. The helper backs up and refreshes a generated cache, without editing your enabled input-source list.</p><p>If it refuses to run, make sure System Settings is fully quit, not only its window closed. On a first installation, save your work and log out and back in if necessary.</p>"
+          ],
+          [
+            "blocked",
+            "macOS blocks the installer",
+            "<p>The preview is not Developer ID-signed or notarized. Follow <a href='https://support.apple.com/en-us/102445'>Apple’s instructions for safely opening software</a> if you choose to trust it. A development preview is not a notarized public release. Do not disable Gatekeeper globally.</p>"
+          ],
+          [
+            "no-translation",
+            "Typing works, but translation does not",
+            "<p>Check the selected provider under Models. For Ollama, make sure the app is running and the chosen local model is installed; refresh the list. For online services, verify the base URL, model ID, API key, quota and provider-supported reasoning level.</p><p>Confirm pending candidates before pressing Tab. Tab only inserts a ready result; it does not schedule insertion for later. English direct typing intentionally does not request translations.</p>"
+          ],
+          [
+            "selection",
+            "No selection button or card",
+            "<ol><li>Check that selection translation is enabled in SaySpan Settings.</li><li>Check SaySpan’s Accessibility permission. Updates to this development build may require renewed authorization.</li><li>Make sure you have finished or canceled any input draft.</li><li>Clear the old selection, then select text again and allow a few seconds for the host app.</li></ol><p>The SaySpan process must be running. Some apps do not expose selected text. Image text and password fields are not supported. If the permission entry is stale, remove that app entry and add the current <code>~/Library/Input Methods/SaySpan.app</code> again.</p>"
+          ],
+          [
+            "update",
+            "Updating or uninstalling",
+            "<p>Before updating, finish your draft and switch to another input source. The installer replaces the app while preserving settings and learned vocabulary. Recheck Accessibility and Keychain access if macOS requests it.</p><p>To uninstall, switch to another input source, remove SaySpan from Keyboard settings, quit it, and move <code>~/Library/Input Methods/SaySpan.app</code> to Trash. Ollama and its models are separate installations. This does not erase your saved settings or learned words.</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "privacy",
+        "title": "Privacy & data",
+        "summary": "Understand what stays on your Mac and what reaches a model.",
+        "sections": [
+          [
+            "translation-data",
+            "Translation data",
+            "<p>During composition, SaySpan sends only the confirmed draft to your selected model after a short pause. Selection translation sends the selected text when you click the button or enable automatic display. It does not send the surrounding document.</p><p>With a locally running Ollama model, inference stays on the Mac. If you configure an online provider or remote endpoint, those requests leave your Mac and the provider’s terms and retention policies apply. SaySpan does not keep a translation history.</p>"
+          ],
+          [
+            "local-data",
+            "Local settings and vocabulary",
+            "<p>Language choices, model preferences and custom prompts are stored locally. Online API keys are stored in macOS Keychain per endpoint. Learned Chinese and Japanese vocabulary is stored on your Mac and is not synchronized or uploaded by SaySpan.</p><p>Selection translation needs macOS Accessibility permission. Ordinary composition uses InputMethodKit without Accessibility or clipboard injection. Selection reading does not use the clipboard; clicking Copy explicitly writes the result to it.</p>"
+          ],
+          [
+            "website",
+            "This website",
+            "<p>This website does not include advertising, analytics scripts, accounts or a live translation service. Its examples are prewritten. It saves only your website language preference in this browser’s local storage.</p><p>The hosting server and Cloudflare process normal request data such as IP addresses, requested URLs and user agents to deliver and protect the site. Downloading the app does not send your typed content to this website.</p>"
+          ]
+        ]
+      }
+    ]
+  }
+}

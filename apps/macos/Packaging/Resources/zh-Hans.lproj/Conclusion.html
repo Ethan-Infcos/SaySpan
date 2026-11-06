@@ -1,0 +1,10 @@
+<!doctype html><html lang="zh-Hans"><meta charset="utf-8"><style>body{font:14px -apple-system,sans-serif;line-height:1.5}h1{font-size:22px}</style>
+<h1>启用 @PRODUCT_NAME@</h1>
+<ol><li>退出「系统设置」，然后打开此磁盘映像中的 <strong>Refresh Input Sources.command</strong>，注册已安装的输入法并重建输入法列表缓存。</li>
+<li>打开「系统设置 → 键盘 → 文本输入 → 编辑 → ＋」。</li>
+<li>在「其他」中找到并添加 @PRODUCT_NAME@，然后从输入法菜单中选择。</li>
+<li>从输入法菜单打开 @PRODUCT_NAME@ 设置，配置 Ollama 或在线模型。</li></ol>
+<p>刷新命令只备份键盘设置生成的列表缓存，不会更改已启用的输入法、设置或权限。在新电脑上首次安装时，macOS 仍可能需要退出登录并重新登录才能发现输入法。</p>
+<p>大写锁定关闭时使用第一语言，开启时使用第二语言。</p>
+<p>可选的划词翻译功能需要「系统设置 → 隐私与安全性 → 辅助功能」权限。必要时手动添加 <code>~/Library/Input Methods/@PRODUCT_NAME@.app</code>。使用临时签名的版本更新后，可能需要重新授权。</p>
+</html>

@@ -1,0 +1,20 @@
+# Build the separate kana fallback table/prism used by the Japanese schema.
+schema:
+  schema_id: vokira_japanese_kana
+  name: @PRODUCT_NAME@ Japanese kana data
+  version: '1.0'
+engine:
+  processors:
+    - speller
+    - selector
+    - express_editor
+  segmentors:
+    - abc_segmentor
+    - fallback_segmentor
+  translators:
+    - script_translator
+speller:
+  __include: vokira_japanese.schema:/speller
+translator:
+  dictionary: vokira_japanese_kana
+  enable_user_dict: false

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+  <title>@PRODUCT_NAME@</title>
+  <options customize="never" require-scripts="false" hostArchitectures="arm64"/>
+  <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="false"/>
+  <volume-check>
+    <allowed-os-versions><os-version min="15.0"/></allowed-os-versions>
+  </volume-check>
+  <readme file="ReadMe.html" mime-type="text/html"/>
+  <conclusion file="Conclusion.html" mime-type="text/html"/>
+  <choices-outline><line choice="input-method"/></choices-outline>
+  <choice id="input-method" title="@PRODUCT_NAME@" visible="false">
+    <pkg-ref id="local.inputmethod.DualLineIME.pkg"/>
+  </choice>
+  <pkg-ref id="local.inputmethod.DualLineIME.pkg">@PRODUCT_NAME@-component.pkg</pkg-ref>
+  <pkg-ref id="local.inputmethod.DualLineIME.pkg">
+    <must-close><app id="local.inputmethod.DualLineIME"/></must-close>
+  </pkg-ref>
+</installer-gui-script>

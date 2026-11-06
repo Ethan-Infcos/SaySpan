@@ -1,0 +1,11 @@
+# Japanese readings and vocabulary from pinned rime-jaroomaji data.
+# Original data and license notices are retained in the imported tables.
+---
+name: vokira_japanese
+version: '1.0'
+sort: by_weight
+use_preset_vocabulary: false
+import_tables:
+  - jaroomaji.kana_kigou
+  - jaroomaji.mozc
+...

@@ -1,0 +1,388 @@
+{
+  "nav": [
+    "功能",
+    "使用方式",
+    "使用文档",
+    "下载"
+  ],
+  "skip": "跳转到正文",
+  "menu": "打开导航",
+  "tagline": "让表达，少一点语言的距离。",
+  "hero": {
+    "eyebrow": "想到，就能表达。",
+    "title": "用熟悉的语言思考。<br>让表达<em>跨越语言。</em>",
+    "description": "按自己的习惯输入，让译文就在输入法里自然出现。不必来回切换窗口，留住每一个正在发生的想法。",
+    "download": "在 GitHub 获取 SaySpan",
+    "guide": "看看如何使用",
+    "meta": "macOS 15+ · Apple Silicon · 开发预览版",
+    "caption": "SaySpan 交互示意。译文为预设示例，并非在线模型生成。",
+    "write": "输入与翻译",
+    "read": "划词与理解",
+    "mockApp": "给团队的一条消息",
+    "mockGreeting": "大家好，",
+    "mockSource": "我们明天上午十点见。",
+    "mockTarget": "Let’s meet tomorrow at 10 AM.",
+    "mockFooter": "让下一个想法，顺畅接续。",
+    "source": "原文",
+    "target": "英文",
+    "ready": "译文已就绪",
+    "enter": "原文上屏",
+    "tab": "译文上屏",
+    "selection": "划词翻译",
+    "readSource": "Good ideas deserve to travel.",
+    "readTarget": "好想法，值得跨越语言。",
+    "readHint": "选中一句话，在原处读懂它。",
+    "copy": "复制示例译文",
+    "copied": "已复制",
+    "copyFailed": "复制失败，请选中文字手动复制。",
+    "swap": "换一个例子"
+  },
+  "strip": [
+    "原生 macOS 输入法",
+    "本地或在线模型",
+    "自由配置语言组合"
+  ],
+  "features": {
+    "eyebrow": "少一点切换，多一点表达。",
+    "title": "让思路，不被打断。",
+    "description": "无论正在写下一句话，还是读到一段陌生的语言，让翻译出现在需要它的地方。",
+    "writeTitle": "先组织想法。<br>再选择表达。",
+    "writeText": "在输入面板中完成选词、组句和编辑，译文就在下方。按 Enter 输入原文，或在译文就绪后按 Tab 输入译文。",
+    "writeLink": "了解整句输入",
+    "readTitle": "语言可以陌生。<br>意思不必遥远。",
+    "readText": "在支持的应用或网页中选中文字，点击翻译按钮，或开启自动显示。需要带走译文时，轻点右上角即可复制。",
+    "readLink": "设置划词翻译",
+    "small": [
+      [
+        "01",
+        "两种语言，一种节奏。",
+        "选择第一语言与第二语言。Caps Lock 关闭时使用第一语言，开启时使用第二语言；翻译方向自动取反。"
+      ],
+      [
+        "02",
+        "越用，越懂你的选词。",
+        "中文和日文候选可根据已确认的词句学习排序。个人词库保存在自己的 Mac 上。"
+      ],
+      [
+        "03",
+        "给完整的想法留出空间。",
+        "在组句中移动、选择、复制、剪切、粘贴和撤销。中英文混合输入，也能保持一句话的连贯。"
+      ]
+    ]
+  },
+  "models": {
+    "eyebrow": "用什么模型，由你决定。",
+    "title": "你的文字，<br>去向由你选择。",
+    "description": "使用本地 Ollama 模型，或接入兼容 OpenAI API 的在线服务。在设置中切换模型，调整自己的翻译提示词。",
+    "local": "留在你的 Mac",
+    "localText": "使用本机运行的 Ollama 模型时，翻译推理在本地完成。Ollama 和模型需要另外安装与下载。",
+    "online": "交给你选择的服务",
+    "onlineText": "配置服务地址、模型和 API Key。待翻译文字会发送给该服务，其计费与数据政策适用。",
+    "link": "选择适合的配置",
+    "keychain": "在线 API Key 保存在 macOS 钥匙串中。"
+  },
+  "steps": {
+    "eyebrow": "一个小改变，一种新习惯。",
+    "title": "三步，开始下一句表达。",
+    "items": [
+      [
+        "添加 SaySpan",
+        "安装 Mac 预览版，在系统键盘设置的「其他」分类中添加 SaySpan。"
+      ],
+      [
+        "按你的习惯配置",
+        "选择两种语言，连接本地模型，或填入在线服务配置。"
+      ],
+      [
+        "开始一句话",
+        "输入、选择候选词，然后让原文或译文进入当前输入框。"
+      ]
+    ],
+    "link": "阅读快速开始指南"
+  },
+  "faq": {
+    "title": "你可能还想知道。",
+    "items": [
+      [
+        "支持哪些电脑？",
+        "当前 DMG 面向 macOS 15 及以上的 Apple Silicon Mac。本版本不支持 Intel Mac、Windows 和 Linux。目前是开发预览版，尚未在全新 Mac 和 macOS 15 系统上完成实际验证。"
+      ],
+      [
+        "需要购买 AI 订阅吗？",
+        "SaySpan 本身不要求订阅。你可以使用单独安装的本地 Ollama 模型。在线服务需要自己的凭据，并可能按 API 使用量收费。"
+      ],
+      [
+        "所有输入内容都会发给模型吗？",
+        "不会。英文直输不会发起翻译。组句时，只有已确认的句子会在短暂停顿后发送给所选模型；划词时发送选中的文字，不发送周围文档内容。"
+      ],
+      [
+        "可以输入所有支持翻译的语言吗？",
+        "语言组合提供 16 种语言，实际输入能力有所不同：中文使用拼音，日文使用罗马字候选，其他多种语言使用原生键盘布局。韩语支持翻译，但暂不支持韩文音节组字。"
+      ],
+      [
+        "在哪里关注项目？",
+        "SaySpan 的公开仓库位于 <a href=\"{repository}\">GitHub</a>。源码进展、项目更新和版本发布请以仓库为准。"
+      ]
+    ]
+  },
+  "closing": [
+    "让下一次交流，<br>再近一点。",
+    "前往 GitHub 项目",
+    "阅读使用文档"
+  ],
+  "footer": {
+    "description": "用熟悉的语言思考，用另一种语言表达。",
+    "product": "产品",
+    "resources": "了解更多",
+    "privacy": "隐私与数据",
+    "release": "更新说明",
+    "note": "一个独立项目，为跨越语言的交流而生。",
+    "status": "macOS 预览版"
+  },
+  "download": {
+    "eyebrow": "认识你的下一个输入法。",
+    "title": "把 SaySpan<br>带到你的 Mac。",
+    "description": "在 GitHub 关注 SaySpan 的开发进展。下载和版本发布以仓库为准，本网站暂不提供安装包直链。",
+    "label": "开发预览版",
+    "button": "前往 GitHub 仓库",
+    "requirements": "macOS 15 及以上 · 仅支持 Apple Silicon",
+    "noticeTitle": "这是早期版本，请先了解这些。",
+    "notice": "此版本未使用 Developer ID 签名，也未经 Apple 公证，macOS 可能阻止安装。打开前请阅读安装指南。全新电脑安装和 macOS 15 运行尚未完成实际验证。",
+    "guide": "阅读安装指南",
+    "next": "取得安装包之后",
+    "steps": [
+      [
+        "为当前账户安装",
+        "打开 DMG，运行 Install SaySpan.pkg。应用将安装在用户资源库的 Input Methods 文件夹中。"
+      ],
+      [
+        "添加输入源",
+        "退出系统设置，运行 DMG 中的 Refresh Input Sources.command，再从「键盘 → 文本输入 → 编辑 → + → 其他」添加 SaySpan。"
+      ],
+      [
+        "连接一个模型",
+        "从输入法菜单打开 SaySpan 设置，选择 Ollama 或兼容 OpenAI 的服务，然后保存配置。"
+      ]
+    ],
+    "releaseTitle": "0.1.37 更新内容",
+    "releaseNotes": [
+      "应用与安装包统一使用 SaySpan 名称及 S 图标。",
+      "输入源正确归类到「其他」，附带工具刷新失效的输入源列表缓存。",
+      "支持中文拼音、日文罗马字候选、整句编辑与可选的划词翻译。",
+      "开发机通过 1,023 项自动检查；物理 Caps Lock 切换与中文候选已在该设备上确认。"
+    ],
+    "otherPlatforms": "其他平台",
+    "otherText": "当前仅提供 Apple Silicon macOS 版本，暂未提供 Windows、Linux 和 Intel 安装包。",
+    "repositoryNote": "下载与更新以 GitHub 仓库为准",
+    "repositoryTitle": "在同一个地方，关注项目。",
+    "repositoryText": "在 GitHub 查看项目、关注进展和确认版本是否已发布。本站安装步骤适用于仓库提供相应安装包之后。"
+  },
+  "docs": {
+    "eyebrow": "SAYSPAN 使用文档",
+    "title": "从这里，顺畅开始。",
+    "description": "从第一句输入，到更符合你习惯的配置。",
+    "search": "搜索使用文档",
+    "noResults": "没有找到相关指南，试试「模型」「Caps Lock」或「划词」。",
+    "contents": "本页目录",
+    "back": "全部指南",
+    "next": "下一篇",
+    "version": "适用于 SaySpan 0.1.37",
+    "guideLabel": "使用指南",
+    "items": [
+      {
+        "slug": "quick-start",
+        "title": "快速开始",
+        "summary": "安装 SaySpan，添加输入源，完成第一句输入。",
+        "sections": [
+          [
+            "before-you-start",
+            "开始之前",
+            "<p>你需要一台运行 macOS 15 及以上系统的 Apple Silicon Mac。当前为开发预览版，未使用 Developer ID 签名，也未经 Apple 公证。已在开发机验证，但全新 Mac 安装和 macOS 15 运行尚未完成实际验证。</p><p>翻译需要一个模型：可使用另行安装的本地 Ollama 模型，或配置自己的 OpenAI 兼容在线服务。基础输入不依赖翻译是否成功。</p>"
+          ],
+          [
+            "install",
+            "1. 安装预览版",
+            "<ol><li>前往 <a href='{repository}'>SaySpan GitHub 仓库</a>确认版本是否已发布。提供 DMG 后，下载兼容的安装包；本站不提供安装包直链。</li><li>如果正在升级，先完成未上屏的句子并切换到其他输入法。</li><li>打开 DMG，运行 <strong>Install SaySpan.pkg</strong>，为当前用户安装。</li></ol><p>输入法本体位于 <code>~/Library/Input Methods/SaySpan.app</code>，不在通常的「应用程序」目录。如果 macOS 阻止打开，请阅读 <a href='https://support.apple.com/zh-cn/102445'>Apple 关于安全打开应用的说明</a>，仅在信任此开发版本时继续。</p>"
+          ],
+          [
+            "enable",
+            "2. 添加 SaySpan 输入源",
+            "<ol><li>完全退出系统设置。</li><li>打开 DMG 中的 <strong>Refresh Input Sources.command</strong>。它会刷新生成的输入源缓存，然后打开键盘设置。</li><li>进入<strong>键盘 → 文本输入 → 编辑 → + → 其他 → SaySpan → 添加</strong>。</li><li>在 macOS 输入法菜单中选择 SaySpan。</li></ol><p>首次安装可能需要注销并重新登录。刷新工具会备份缓存，不会更改已启用的输入源、个人偏好或权限。</p>"
+          ],
+          [
+            "configure",
+            "3. 选择语言与模型",
+            "<p>选中 SaySpan 后，从 macOS 输入法菜单进入<strong>设置…</strong>。在<strong>语言</strong>中选择第一语言与第二语言，默认是英文与简体中文。</p><p>在<strong>模型</strong>中选择本地 Ollama 模型，或配置在线服务，然后保存。完整步骤见<a href='../models/'>模型与翻译提示词</a>。</p>"
+          ],
+          [
+            "first-sentence",
+            "4. 试着输入第一句",
+            "<p>使用默认的英文／中文组合时，开启物理 Caps Lock，进入中文输入。输入 <code>nihao</code>，按空格确认<strong>你好</strong>，再按 Enter 将原文上屏。也可以等待译文就绪，按 Tab 将译文上屏。</p><p>关闭 Caps Lock 即可直接输入英文，当前系统输入法仍是 SaySpan。输入大写字母时请按住 Shift。</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "writing",
+        "title": "输入与键盘操作",
+        "summary": "选择候选词、编辑整句，再决定上屏原文还是译文。",
+        "sections": [
+          [
+            "candidates",
+            "组织一句话",
+            "<p>中文拼音与日文罗马字输入会显示候选列表。空格确认当前高亮候选，数字键或鼠标可选择可见的编号候选。</p><p>还有未确认的候选时，上下左右键全部用于候选导航。下方向键或 Page Down 可展开多行；越过边缘会进入相邻页，展开后的 Page Up 与 Page Down 用于整页切换。</p><p>默认每行显示五个候选，可在<strong>设置 → 输入</strong>中设为 3–9 个。长候选会根据可用空间换行。</p>"
+          ],
+          [
+            "edit",
+            "上屏之前，继续编辑",
+            "<p>全部候选确认后，方向键改为控制句子光标，上下键可在显示的文本行间移动。按住 Shift 配合方向键，可选中已确认句子中的一部分。</p><p>Command+A、C、X、V、Z 分别在当前组句中执行全选、复制、剪切、粘贴、撤销；Command+Shift+Z 重做。删除或继续输入只作用于选中的部分。清空整个句子会关闭面板，撤销仍可恢复。</p>"
+          ],
+          [
+            "shortcuts",
+            "常用按键",
+            "<div class='table-wrap'><table><thead><tr><th>按键</th><th>作用</th></tr></thead><tbody><tr><td>空格</td><td>确认高亮候选；无候选待选时插入空格。</td></tr><tr><td>Enter</td><td>仍有拼写待选时，将原始英文字母加入组句；否则将整句原文上屏。</td></tr><tr><td>Tab</td><td>候选全部确认且译文就绪时，将译文上屏。提前按下不会安排稍后自动上屏。</td></tr><tr><td>Escape</td><td>根据当前状态清除选区、收起候选、清除拼写或取消组句。</td></tr><tr><td>Caps Lock</td><td>关闭使用第一语言，开启使用第二语言。组句中切换时先将原文上屏。</td></tr></tbody></table></div><p>Enter 和 Tab 的上屏操作不会向当前应用发送回车，也不会提交表单。</p>"
+          ],
+          [
+            "mixed",
+            "中英文混合输入",
+            "<p>要在中文句子中保留一个英文单词，输入字母后，先不要选候选词，按 Enter 即可将字母加入组句，并去掉拼音分词符。仍有拼写待选时，单独轻按 Shift 也能完成这一操作。</p><p>例如 <code>hello → Enter → 空格 → shijie → 空格</code> 可以得到 <strong>hello 世界</strong>。再次按 Enter 上屏原文，或在译文就绪后按 Tab 上屏译文。Shift+字母可输入大写拉丁字母，标点则遵循当前语言。</p>"
+          ],
+          [
+            "learning",
+            "让常用词更顺手",
+            "<p><strong>设置 → 输入</strong>中的高频记忆会根据已确认的中文和日文词句调整候选排序。词库保存在本机，重启后依然有效。关闭学习会保留已有词库，但使用基础排序。</p><p>候选确认时就可能完成学习，不必等到整句上屏。取消组句不会撤销已经学会的词句。</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "selection",
+        "title": "划词翻译",
+        "summary": "在其他应用中读懂选中文字，不替换原文。",
+        "sections": [
+          [
+            "permission",
+            "启用划词翻译",
+            "<p>打开<strong>设置 → 划词翻译</strong>，启用此功能，然后在<strong>系统设置 → 隐私与安全性 → 辅助功能</strong>中为 <strong>SaySpan</strong> 开启权限。</p><p>如果权限列表没有此程序，点击 + 并选择 <code>~/Library/Input Methods/SaySpan.app</code>。文件选择窗口中可按 Command+Shift+G 输入目录路径。此权限用于读取其他应用的选区，普通输入不需要它。</p>"
+          ],
+          [
+            "translate",
+            "选中，再翻译",
+            "<p>在支持的文档或网页中选中文字，点击选区附近的小翻译按钮。译文卡片停留在首次出现的位置，不会跟随鼠标移动。右上角的小复制图标可复制译文。</p><p>在卡片或设置中启用<strong>自动翻译</strong>后，选区稳定片刻便会直接显示译文，无需再点击。此选择立即保存。点击外部可关闭；需要重试时重新选中文字。</p>"
+          ],
+          [
+            "direction",
+            "方向跟随语言组合",
+            "<p>SaySpan 识别选区主要属于配置的哪一种语言，并翻译为另一种。混合内容按主要语言判断；识别不确定时，划词译文使用第一语言。</p><p>正在 SaySpan 中组句时，划词翻译会暂停，避免把输入中的句子再次弹窗翻译。</p>"
+          ],
+          [
+            "formatting",
+            "格式与应用兼容性",
+            "<p>在源应用提供完整文字结构、模型输出允许的情况下，保留换行、空行、缩进和列表标记。这是纯文本结构，不包含字体、颜色和富文本样式。</p><p>源应用需要通过 macOS 辅助功能提供选中文字。不支持密码框和图片 OCR，部分 Chromium 应用初始化可访问内容可能需要几秒。超过 6,000 个 UTF-16 代码单元的选区会在发送给模型前被拒绝。</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "models",
+        "title": "模型与翻译提示词",
+        "summary": "连接本地 Ollama，或使用自己的兼容在线 API。",
+        "sections": [
+          [
+            "ollama",
+            "使用本地 Ollama",
+            "<ol><li>安装并打开 <a href='https://ollama.com/download/mac'>Ollama macOS 版</a>。</li><li>下载本地模型。例如应用默认模型，可在终端运行 <code>ollama pull qwen2.5:3b</code>。</li><li>在 <strong>SaySpan 设置 → 模型</strong>中选择 Ollama，刷新模型列表，选择下载好的模型并保存。</li></ol><p>默认本地服务地址是 <code>http://127.0.0.1:11434</code>。DMG 不包含 Ollama 或模型权重。模型大小、语言覆盖和速度取决于模型与硬件。服务配置可参考 <a href='https://docs.ollama.com/quickstart'>Ollama 官方快速开始</a>。</p>"
+          ],
+          [
+            "online",
+            "连接在线服务",
+            "<p>选择 OpenAI 兼容的在线服务，填写 API 基础地址、API Key 和文本对话模型 ID。服务支持时可以刷新模型列表，也可以手动输入 ID。翻译接口需兼容 <code>/chat/completions</code>，模型发现使用 <code>/models</code>。</p><p>填写服务商文档中的基础地址，不是完整的 chat-completions 地址。除本机服务外要求使用 HTTPS；暂未实现 Anthropic Messages 等其他独立协议。</p><p>API Key 按服务地址分别保存在 macOS 钥匙串中；留空会保留该地址已有的密钥。在线请求会把组句或选区发送给服务商，并可能产生费用。应用不会自动回退到其他服务。</p>"
+          ],
+          [
+            "reasoning",
+            "推理等级从简单开始",
+            "<p>建议先使用<strong>最低（推荐）</strong>。对于已识别的模型系列，SaySpan 会匹配其支持的最低等级；未知模型使用服务默认值。</p><p>如果服务拒绝推理参数，请改为<strong>服务默认</strong>。可用等级由服务商与模型决定，较高等级并不保证翻译更好。</p>"
+          ],
+          [
+            "prompt",
+            "调整自己的翻译要求",
+            "<p>在<strong>设置 → 翻译提示词</strong>中，可用中文或英文编辑共享指令，保存后用于后续整句翻译与划词翻译。</p><p>语言方向和格式规则会自动附加。默认提示词要求保留细节、否定、条件和动作执行者，不添加额外解释。可恢复默认并保存。模型仍可能出错，重要译文需要自行核对。</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "languages",
+        "title": "语言与切换",
+        "summary": "配置两种语言，了解各语言实际支持的输入方式。",
+        "sections": [
+          [
+            "pair",
+            "两种语言，双向翻译",
+            "<p>在<strong>设置 → 语言</strong>中选择两种不同语言。Caps Lock 关闭时使用第一语言，开启时使用第二语言，以物理键盘状态为准。菜单只显示当前语言，不用于切换。</p><p>在组句中按 Caps Lock 时，会先确认当前高亮候选并将原文上屏，再切换语言。没有临时语言模式。输入英文大写字母请按住 Shift。</p>"
+          ],
+          [
+            "engines",
+            "当前版本的输入支持",
+            "<div class='table-wrap'><table><thead><tr><th>语言</th><th>输入方式</th></tr></thead><tbody><tr><td>简体中文</td><td>Rime 拼音，支持候选学习。</td></tr><tr><td>繁体中文</td><td>拼音配合 OpenCC 转换，不是注音或仓颉。</td></tr><tr><td>日文</td><td>Rime 罗马字输入，提供假名和汉字候选。属于词句转换，不是完整 Mozc 引擎。</td></tr><tr><td>英文、印尼语</td><td>ABC 布局。</td></tr><tr><td>法语、德语、西班牙语、葡萄牙语、意大利语</td><td>对应的 macOS 键盘布局，支持原生重音字符。</td></tr><tr><td>俄语、阿拉伯语、印地语、泰语、越南语</td><td>对应的 macOS 键盘布局，暂不支持其他音译布局选择。</td></tr><tr><td>韩语</td><td>支持翻译，暂不支持韩文音节组字；当前输入回退为 ABC。</td></tr></tbody></table></div><p>英文保持直输，普通英文输入不会打开翻译面板，可选中英文后进行翻译。整句候选工作流由中文和日文引擎提供。</p>"
+          ],
+          [
+            "interface",
+            "网站与应用界面语言",
+            "<p>应用界面支持英文与简体中文。<strong>设置 → 通用 → 界面语言</strong>默认跟随系统，也可手动指定。保存后重新打开设置可刷新界面文字。</p><p>网站有独立的语言切换，并在此浏览器记住选择。界面语言不会改变输入语言组合。</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "troubleshooting",
+        "title": "常见问题排查",
+        "summary": "找不到输入源、模型连接异常和划词权限问题。",
+        "sections": [
+          [
+            "missing",
+            "键盘设置中没有 SaySpan，或名称空白",
+            "<p>完全退出系统设置，再运行 DMG 中的 <strong>Refresh Input Sources.command</strong>，然后重新打开输入源列表，在<strong>其他</strong>分类查找。工具会备份并刷新生成的缓存，不会修改已启用的输入源列表。</p><p>如果提示无法运行，请确认系统设置已完全退出，而不只是关闭窗口。首次安装必要时可保存工作，注销并重新登录。</p>"
+          ],
+          [
+            "blocked",
+            "macOS 阻止安装",
+            "<p>预览版未使用 Developer ID 签名，也未经 Apple 公证。如果你选择信任此版本，请按照 <a href='https://support.apple.com/zh-cn/102445'>Apple 安全打开软件的说明</a>操作。开发预览版不等于已经公证的公开发行版，请勿全局关闭 Gatekeeper。</p>"
+          ],
+          [
+            "no-translation",
+            "可以输入，但没有译文",
+            "<p>在模型设置中检查当前服务。本地 Ollama 需要处于运行状态，并已下载所选模型，可刷新列表确认。在线服务需检查基础地址、模型 ID、API Key、额度和支持的推理等级。</p><p>按 Tab 前需先确认待选候选词，并等待译文就绪。Tab 不会安排稍后的自动上屏。英文直输本身不会请求翻译，这是正常行为。</p>"
+          ],
+          [
+            "selection",
+            "划词按钮或译文卡片不显示",
+            "<ol><li>检查 SaySpan 设置中的划词翻译是否开启。</li><li>检查 SaySpan 的辅助功能权限；开发版更新后可能需要重新授权。</li><li>完成或取消尚未结束的组句。</li><li>取消旧选区，重新选中文字，并给源应用几秒时间。</li></ol><p>SaySpan 进程需要正在运行。部分应用不提供选区内容，不支持图片文字和密码框。如果权限条目失效，可移除旧条目，重新添加当前的 <code>~/Library/Input Methods/SaySpan.app</code>。</p>"
+          ],
+          [
+            "update",
+            "更新或卸载",
+            "<p>更新前请完成组句，切换到其他输入法。安装器替换应用，但保留设置和学习词库。如果 macOS 提示，请重新检查辅助功能与钥匙串权限。</p><p>卸载时，先切换到其他输入法，在键盘设置中移除 SaySpan，退出进程，再将 <code>~/Library/Input Methods/SaySpan.app</code> 移到废纸篓。Ollama 与模型是单独安装的。此操作不会抹除保存的设置和学习词库。</p>"
+          ]
+        ]
+      },
+      {
+        "slug": "privacy",
+        "title": "隐私与数据",
+        "summary": "了解哪些内容保留在本机，哪些会发送给模型。",
+        "sections": [
+          [
+            "translation-data",
+            "翻译内容",
+            "<p>组句时，SaySpan 只会在短暂停顿后将已确认的句子发给选定模型。划词时，在点击按钮或启用自动显示后发送选区内容，不发送周围文档。</p><p>使用本机运行的 Ollama 模型时，推理在 Mac 上完成；配置在线服务或远程地址时，请求会离开本机，适用服务商的条款与数据保留政策。SaySpan 不保存翻译历史。</p>"
+          ],
+          [
+            "local-data",
+            "本地设置与词库",
+            "<p>语言、模型偏好与自定义提示词保存在本机。在线 API Key 按地址保存在 macOS 钥匙串。学习的中文和日文词库保存在本机，SaySpan 不会上传或同步它们。</p><p>划词翻译需要 macOS 辅助功能权限。普通输入使用 InputMethodKit，不依赖辅助功能或剪贴板注入。读取选区不使用剪贴板，只有点击复制时才把译文写入剪贴板。</p>"
+          ],
+          [
+            "website",
+            "本网站",
+            "<p>本网站没有广告、分析统计脚本、账户或在线翻译服务。交互示例均为预设内容，仅在浏览器本地存储网站语言偏好。</p><p>网站服务器与 Cloudflare 会处理正常访问所需的 IP 地址、请求 URL、浏览器标识等数据，用于交付与保护网站。下载安装包不会把你输入的内容发送到本网站。</p>"
+          ]
+        ]
+      }
+    ]
+  }
+}

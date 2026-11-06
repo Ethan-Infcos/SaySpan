@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.png binary
+*.pdf binary
+apps/macos/Vendor/** linguist-vendored -text -whitespace
+apps/macos/Vendor/rime-jaroomaji/*.dict.yaml -text -diff
+apps/macos/Resources/Rime/pinyin_simp.dict.yaml -text -diff linguist-vendored

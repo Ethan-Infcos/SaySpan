@@ -1,0 +1,35 @@
+# Build products, local diagnostics, and private deployment state
+.build/
+dist/
+.local/
+*.app/
+*.dmg
+*.pkg
+*.log
+__pycache__/
+*.py[cod]
+.venv/
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Credentials and local configuration must never be published
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+
+# Rime personal dictionaries and session data
+*.userdb/
+*.userdb.txt
+*.userdb.kct
+*.userdb.kct.snapshot
+user.yaml
+installation.yaml

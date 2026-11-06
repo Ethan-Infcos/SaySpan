@@ -1,0 +1,50 @@
+name: Validate source
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  website:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - run: python3 -m compileall -q apps/macos/Tools website/tools
+      - run: python3 website/tools/build.py
+      - run: python3 website/tools/validate.py
+      - run: git diff --check
+
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      IME_MIN_MACOS: '15.0'
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: test "$(uname -m)" = arm64
+      - run: brew install librime opencc gitleaks
+      - name: Check source for secrets
+        run: gitleaks dir . --redact --no-banner
+      - name: Verify vendored dictionary checksums
+        working-directory: apps/macos/Vendor/rime-jaroomaji
+        run: shasum -a 256 -c SHA256SUMS.txt
+      - run: bash apps/macos/build.sh
+      - run: python3 apps/macos/Tools/Test.py

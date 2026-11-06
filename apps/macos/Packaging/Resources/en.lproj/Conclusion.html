@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><style>body{font:14px -apple-system,sans-serif;line-height:1.5}h1{font-size:22px}</style>
+<h1>Enable @PRODUCT_NAME@</h1>
+<ol><li>Quit System Settings. Open <strong>Refresh Input Sources.command</strong> from this disk image to register the installed app and rebuild the input-source picker cache.</li>
+<li>Open System Settings → Keyboard → Text Input → Edit → +.</li>
+<li>Find @PRODUCT_NAME@ under Others, add it, and select it from the input menu.</li>
+<li>Open @PRODUCT_NAME@ Settings from its input menu and configure Ollama or an online model.</li></ol>
+<p>The refresh command backs up only the keyboard picker's generated cache. It does not change your enabled input sources, settings, or permissions. On a new Mac, a first installation may still need a logout/login before macOS discovers the input method.</p>
+<p>Caps Lock off uses your first language; Caps Lock on uses your second language.</p>
+<p>Optional selected-text translation needs permission in System Settings → Privacy &amp; Security → Accessibility. Add <code>~/Library/Input Methods/@PRODUCT_NAME@.app</code> if necessary. Updating an ad-hoc signed build may require renewing this permission.</p>
+</html>

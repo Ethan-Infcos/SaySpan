@@ -1,0 +1,9 @@
+# Share the same dictionary and behavior while disabling personal learning.
+__include: dual_line.schema:/
+schema:
+  schema_id: dual_line_static
+  name: 双行译全拼（基础词库）
+  version: '0.3'
+translator:
+  dictionary: pinyin_simp
+  enable_user_dict: false
