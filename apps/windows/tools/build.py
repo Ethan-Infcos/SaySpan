@@ -62,6 +62,21 @@ def main():
     shutil.copytree(data, payload / 'data')
     run('python', ROOT / 'tools/translation_integration.py', binary, payload)
     shutil.copytree(prefix / 'licenses', payload / 'licenses')
+    # Self-contained runtime redistribution needs the runtime-pack license notices.
+    packages = Path(os.environ.get('NUGET_PACKAGES', Path.home() / '.nuget/packages'))
+    for package in ('microsoft.netcore.app.runtime.win-x64', 'microsoft.windowsdesktop.app.runtime.win-x64'):
+        roots = sorted((packages / package).glob('10.0.*'))
+        if not roots:
+            raise RuntimeError(f'Missing runtime package license source: {package}')
+        license_dir = payload / 'licenses' / package
+        license_dir.mkdir(parents=True, exist_ok=True)
+        copied = []
+        for source in roots[-1].iterdir():
+            if source.is_file() and ('license' in source.name.lower() or 'notice' in source.name.lower()):
+                shutil.copy2(source, license_dir / source.name)
+                copied.append(source.name)
+        if not copied:
+            raise RuntimeError(f'Runtime redistribution notices were not found: {package}')
     for name in ('LICENSE', 'THIRD_PARTY_NOTICES.md'):
         shutil.copy2(REPO / name, payload / name)
     shutil.copytree(REPO / 'apps/macos/Vendor/rime-jaroomaji', payload / 'licenses/rime-jaroomaji', ignore=shutil.ignore_patterns('*.yaml'))

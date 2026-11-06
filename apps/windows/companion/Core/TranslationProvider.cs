@@ -33,8 +33,8 @@ public sealed class TranslationProvider(HttpClient client)
     public static string Target(Preferences p, string text, string fallback)
     {
         int latin=text.Count(c=>c is >= 'a' and <= 'z' or >= 'A' and <= 'Z');
-        int nonLatin=text.Count(c=>char.IsLetter(c) && c>0x02ff);
-        bool mostlyLatin=latin>nonLatin*3;
+        int nonLatinLetters=text.Count(c=>char.IsLetter(c) && c>0x02ff);
+        bool mostlyLatin=latin>nonLatinLetters*3;
         string? detected = !mostlyLatin && text.Any(c => c is >= '\u3040' and <= '\u30ff') ? "ja" :
             !mostlyLatin && text.Any(c => c is >= '\uac00' and <= '\ud7af') ? "ko" :
             !mostlyLatin && text.Any(c => c is >= '\u4e00' and <= '\u9fff') ? "zh" :
