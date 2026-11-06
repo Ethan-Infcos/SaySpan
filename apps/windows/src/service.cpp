@@ -2,6 +2,7 @@
 #include "panel.h"
 #include "rime_engine.h"
 #include <functional>
+#include <inputscope.h>
 #include <memory>
 #include <new>
 #include <optional>
@@ -46,8 +47,9 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
     bool ending = false;
     bool focused = true;
     unsigned generation = 0;
+    unsigned pendingKeys = 0;
 
-    bool active() const { return editor && editor->active(); }
+    bool active() const { return pendingKeys || (editor && editor->active()); }
     bool allowed(ITfContext* ctx) const {
         if(!ctx) return false;
         ComPtr<ITfCompartmentMgr> compartments;
@@ -61,7 +63,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
         }
         HWND window=GetFocus(); wchar_t name[32]{};
         GetClassNameW(window,name,32);
-        if(_wcsicmp(name,L"Edit")==0 && (GetWindowLongPtrW(window,GWL_STYLE)&ES_PASSWORD)) return false;
+        if((_wcsicmp(name,L"Edit")==0 || _wcsnicmp(name,L"RichEdit",8)==0) && (GetWindowLongPtrW(window,GWL_STYLE)&ES_PASSWORD)) return false;
         return true;
     }
     std::optional<Input> key(WPARAM vk, LPARAM flags) const {
@@ -112,6 +114,24 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
         HRESULT hr=ctx->QueryInterface(IID_PPV_ARGS(&insertion)); if(FAILED(hr)) return hr;
         ComPtr<ITfRange> range;
         hr=insertion->InsertTextAtSelection(cookie,TF_IAS_QUERYONLY,nullptr,0,&range); if(FAILED(hr)) return hr;
+        // Inspect the input scope before reading any selected host text.
+        ComPtr<ITfReadOnlyProperty> property;
+        if(SUCCEEDED(ctx->GetAppProperty(GUID_PROP_INPUTSCOPE,&property))) {
+            VARIANT value; VariantInit(&value);
+            if(SUCCEEDED(property->GetValue(cookie,range.Get(),&value)) && value.vt==VT_UNKNOWN && value.punkVal) {
+                ComPtr<ITfInputScope> scope;
+                if(SUCCEEDED(value.punkVal->QueryInterface(IID_PPV_ARGS(&scope)))) {
+                    InputScope* scopes=nullptr; UINT count=0;
+                    if(SUCCEEDED(scope->GetInputScopes(&scopes,&count))) {
+                        bool password=false;
+                        for(UINT i=0;i<count;++i) password=password || scopes[i]==IS_PASSWORD;
+                        CoTaskMemFree(scopes);
+                        if(password) { VariantClear(&value); return E_ACCESSDENIED; }
+                    }
+                }
+            }
+            VariantClear(&value);
+        }
         original.clear();
         ComPtr<ITfRange> read; range->Clone(&read);
         wchar_t buffer[1024]; ULONG count=0;
@@ -120,7 +140,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
             original+=utf16(std::wstring(buffer,count));
         } while(count==1024);
         ComPtr<ITfContextComposition> provider; hr=ctx->QueryInterface(IID_PPV_ARGS(&provider)); if(FAILED(hr)) return hr;
-        hr=provider->StartComposition(cookie,range,this,&composition);
+        hr=provider->StartComposition(cookie,range.Get(),this,&composition);
         if(SUCCEEDED(hr) && composition) context=ctx;
         return composition?hr:E_FAIL;
     }
@@ -140,7 +160,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
         hr=context->SetSelection(cookie,1,&selection); if(FAILED(hr)) return hr;
         RECT rect{}; BOOL clipped=FALSE;
         ComPtr<ITfContextView> view; context->GetActiveView(&view);
-        if(!view || FAILED(view->GetTextExt(cookie,caret,&rect,&clipped))) {
+        if(!view || FAILED(view->GetTextExt(cookie,caret.Get(),&rect,&clipped))) {
             POINT point{}; HWND window=GetFocus();
             if(GetCaretPos(&point) && window) { ClientToScreen(window,&point); rect={point.x,point.y,point.x+1,point.y+22}; }
             else if(window) { GetWindowRect(window,&rect); rect.bottom=rect.top+30; }
@@ -168,9 +188,9 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
         if(SUCCEEDED(hr)) { composition.Reset(); context.Reset(); editor->reset(); original.clear(); panel.hide(); ++generation; }
         return hr;
     }
-    void finishLater() {
-        if(!composition) { panel.hide(); return; }
-        ComPtr<ITfContext> target=context; unsigned revision=generation;
+    void finishLater(ITfContext* queuedContext=nullptr) {
+        if(!composition && !(pendingKeys && queuedContext)) { panel.hide(); return; }
+        ComPtr<ITfContext> target=context?context:ComPtr<ITfContext>(queuedContext); unsigned revision=generation;
         request(target.Get(),[this,target,revision](TfEditCookie cookie) {
             return generation==revision && context.Get()==target.Get()?finish(cookie):S_FALSE;
         });
@@ -262,10 +282,12 @@ public:
         try {
             if(!allowed(ctx)) return S_OK;
             auto input=key(vk,flags); bool clip=clipboardKey(vk);
-            if(!input && !clip) { if(active() && vk!=VK_SHIFT && vk!=VK_CONTROL && vk!=VK_MENU) finishLater(); return S_OK; }
+            if(!input && !clip) { if(active() && vk!=VK_SHIFT && vk!=VK_CONTROL && vk!=VK_MENU) finishLater(ctx); return S_OK; }
             if(!engine) { engine=std::make_unique<RimeEngine>(); editor=std::make_unique<Editor>(*engine); }
             ComPtr<ITfContext> target=ctx;
-            HRESULT hr=request(ctx,[this,target,input,clip,vk](TfEditCookie cookie) {
+            ++pendingKeys;
+            auto pending=std::shared_ptr<void>(this,[this](void*) { --pendingKeys; });
+            HRESULT hr=request(ctx,[this,target,input,clip,vk,pending](TfEditCookie cookie) {
                 if(context && context.Get()!=target.Get()) return E_UNEXPECTED;
                 HRESULT result=start(target.Get(),cookie); if(FAILED(result)) return result;
                 if(clip) clipboard(vk);
@@ -273,7 +295,7 @@ public:
                     auto outcome=editor->process(*input);
                     if(outcome.commit || outcome.cancel) return finish(cookie,outcome.cancel);
                 }
-                if(!editor->active()) return finish(cookie);
+                if(!editor->active()) return finish(cookie,input && input->key==Key::Escape);
                 ComPtr<ITfDocumentMgr> current, owner;
                 if(manager) manager->GetFocus(&current);
                 target->GetDocumentMgr(&owner);

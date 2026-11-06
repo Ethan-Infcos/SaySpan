@@ -18,7 +18,9 @@ def main():
     run('ctest', '--test-dir', build, '-C', 'Release', '--output-on-failure')
     binary = build / 'bin/Release'
     data = binary / 'data'
-    shutil.copytree(ROOT / 'resources', data, dirs_exist_ok=True)
+    data.mkdir(parents=True, exist_ok=True)
+    for schema in (ROOT / 'resources').glob('*.yaml'):
+        shutil.copy2(schema, data / schema.name)
     shutil.copy2(REPO / 'apps/macos/Resources/Rime/pinyin_simp.dict.yaml', data)
     deploy = work / 'dictionary-build'
     run(binary / 'runtime_tests.exe', '--deploy', data, deploy)

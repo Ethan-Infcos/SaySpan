@@ -16,8 +16,8 @@ inline constexpr LANGID ProfileLanguage = 0x0804;
 extern HINSTANCE module;
 extern std::atomic<long> objects;
 std::filesystem::path ModuleFolder();
-inline std::wstring wide(const std::u16string& s) { static_assert(sizeof(wchar_t)==2); return {reinterpret_cast<const wchar_t*>(s.data()),s.size()}; }
-inline std::u16string utf16(const std::wstring& s) { return {reinterpret_cast<const char16_t*>(s.data()),s.size()}; }
+inline std::wstring wide(const std::u16string& s) { static_assert(sizeof(wchar_t)==2); return {s.begin(),s.end()}; }
+inline std::u16string utf16(const std::wstring& s) { return {s.begin(),s.end()}; }
 std::string utf8(const std::wstring& s);
 std::u16string fromUtf8(const char* s);
 bool ChineseUI();
