@@ -39,10 +39,7 @@ def main():
     shutil.copytree(prefix / 'licenses', payload / 'licenses')
     for name in ('LICENSE', 'THIRD_PARTY_NOTICES.md'):
         shutil.copy2(REPO / name, payload / name)
-    for name in ('LICENSE', 'SOURCE.txt'):
-        source = REPO / 'apps/macos/Resources/Rime' / name
-        if source.exists():
-            shutil.copy2(source, payload / 'licenses' / f'pinyin-{name}')
+    shutil.copy2(REPO / 'apps/macos/Vendor/rime-pinyin-simp-LICENSE', payload / 'licenses/pinyin-LICENSE')
 
 
 if __name__ == '__main__':
