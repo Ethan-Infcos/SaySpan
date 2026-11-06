@@ -6,7 +6,9 @@ int wmain(int argc,wchar_t** argv){
     try{
         if(argc==4 && std::wstring(argv[1])==L"--deploy")return InitializeRime(argv[2],argv[3],true)?0:1;
         if(argc!=2)return 2;
-        if(!InitializeRime(ModuleFolder()/L"data",argv[1],false))throw std::runtime_error("InitializeRime failed");
+        bool sandbox=std::wstring(argv[1])==L"--sandbox";
+        if(sandbox && !InAppContainer())return 3;
+        if(!sandbox && !InitializeRime(ModuleFolder()/L"data",argv[1],false))throw std::runtime_error("InitializeRime failed");
         RimeEngine engine;Editor editor(engine);
         for(char16_t c:std::u16string(u"nihao"))editor.process({Key::Text,{c}});
         auto candidates=editor.candidates();

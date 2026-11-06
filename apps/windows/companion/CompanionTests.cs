@@ -11,6 +11,7 @@ static class CompanionTests
         try {
             var before = original with { AutomaticSelection = false }; Store.Save(original, before);
             Store.Automatic(true);
+            if(!Store.Read().AutomaticSelection || !new SelectionSettingsTracker().Update(Store.Read()))throw new Exception("Saved automatic mode did not arm capture.");
             Store.Save(before, before with { CandidateColumns = 7 });
             if (!Store.Read().AutomaticSelection) throw new Exception("Stale settings overwrote live automatic translation.");
             const string endpoint = "http://127.0.0.1:48321/v1";

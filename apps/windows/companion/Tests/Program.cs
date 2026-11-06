@@ -5,6 +5,12 @@ using SaySpan.Core;
 int checks = 0;
 void Check(bool condition, string message) { checks++; if (!condition) throw new Exception(message); }
 var p = new Preferences();
+var selectionSettings = new SelectionSettingsTracker();
+Check(selectionSettings.Update(p), "Selection capture arms at startup without opening settings");
+Check(!selectionSettings.Update(p), "Unchanged preferences do not continuously re-arm capture");
+Check(selectionSettings.Update(p with { AutomaticSelection = true }), "Automatic toggle re-arms the existing selection");
+Check(selectionSettings.Update(p with { SelectionEnabled = false, AutomaticSelection = true }), "Disable applies immediately");
+Check(new SelectionSettingsTracker().Update(p with { AutomaticSelection = true }), "Saved automatic mode arms after a restart");
 Check(TranslationProvider.Target(p, "你好", "") == "en", "Chinese to English");
 Check(TranslationProvider.Target(p, "Please meet 李 at the train station tomorrow.", "") == "zh", "A proper name does not change the dominant language");
 Check(TranslationProvider.Target(p, "hello", "") == "zh", "English to Chinese");

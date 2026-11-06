@@ -16,7 +16,8 @@ HRESULT RegisterService(bool install) {
     auto key=RegistryKey();
     if(!install) {
         HRESULT profile=profiles->UnregisterProfile(ServiceId,ProfileLanguage,ProfileId,0);
-        categories->UnregisterCategory(ServiceId,GUID_TFCAT_TIP_KEYBOARD,ServiceId);
+        for(const auto& category:{GUID_TFCAT_TIP_KEYBOARD,GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT})
+            categories->UnregisterCategory(ServiceId,category,ServiceId);
         LONG status=RegDeleteTreeW(HKEY_LOCAL_MACHINE,key.c_str());
         if(status!=ERROR_SUCCESS && status!=ERROR_FILE_NOT_FOUND)return HRESULT_FROM_WIN32(status);
         return FAILED(profile) && profile!=E_INVALIDARG?profile:S_OK;
@@ -32,8 +33,11 @@ HRESULT RegisterService(bool install) {
     if(status!=ERROR_SUCCESS)return HRESULT_FROM_WIN32(status);
     const wchar_t* name=ProfileName;
     hr=profiles->RegisterProfile(ServiceId,ProfileLanguage,ProfileId,name,static_cast<ULONG>(wcslen(name)),path.c_str(),static_cast<ULONG>(path.size()),0,nullptr,0,TRUE,0);
-    if(SUCCEEDED(hr))hr=categories->RegisterCategory(ServiceId,GUID_TFCAT_TIP_KEYBOARD,ServiceId);
-    if(FAILED(hr)) { profiles->UnregisterProfile(ServiceId,ProfileLanguage,ProfileId,0); RegDeleteTreeW(HKEY_LOCAL_MACHINE,key.c_str()); }
+    for(const auto& category:{GUID_TFCAT_TIP_KEYBOARD,GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT})
+        if(SUCCEEDED(hr))hr=categories->RegisterCategory(ServiceId,category,ServiceId);
+    if(FAILED(hr)) {
+        for(const auto& category:{GUID_TFCAT_TIP_KEYBOARD,GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT})categories->UnregisterCategory(ServiceId,category,ServiceId);
+        profiles->UnregisterProfile(ServiceId,ProfileLanguage,ProfileId,0); RegDeleteTreeW(HKEY_LOCAL_MACHINE,key.c_str()); }
     return hr;
 }
 }

@@ -12,8 +12,8 @@ bool Panel::ensureWindow() {
     return window!=nullptr;
 }
 void Panel::watch(std::function<void()> callback) {tick=std::move(callback);if(ensureWindow())SetTimer(window,1,100,nullptr);}
-void Panel::hide() {select={};if(window)ShowWindow(window,SW_HIDE);}
-void Panel::refresh(const Editor& editor) {auto callback=select;show(editor,lastCaret,std::move(callback));}
+void Panel::hide() {select={};if(window && IsWindowVisible(window)){NotifyWinEvent(EVENT_OBJECT_IME_HIDE,window,OBJID_CLIENT,CHILDID_SELF);ShowWindow(window,SW_HIDE);}}
+void Panel::refresh(const Editor& editor) {auto callback=select;show(editor,lastCaret,std::move(callback),lastOwner);}
 void Panel::layout(HDC dc,int maxWidth) {
     width=std::min(px(680),maxWidth);
     positions.assign(sentence.size()+1,{});
@@ -54,18 +54,22 @@ void Panel::layout(HDC dc,int maxWidth) {
     }
     height=y+px(34);
 }
-void Panel::show(const Editor& editor,RECT caret,std::function<void(size_t)> choose) {
+void Panel::show(const Editor& editor,RECT caret,std::function<void(size_t)> choose,HWND owner) {
     if(!editor.active()){hide();return;}
     sentence=wide(editor.marked());candidates=editor.candidates();if(translation!=wide(editor.translation))translationScroll=0;translation=wide(editor.translation);status=wide(editor.translationStatus);language=editor.language;columns=editor.columns;
     caretPosition=editor.markedCaret();selectionStart=editor.pending()?caretPosition:editor.draft.start();selectionEnd=editor.pending()?caretPosition:editor.draft.end();
     lastCaret=caret;select=std::move(choose);if(!ensureWindow())return;
+    if(!owner)owner=GetFocus();lastOwner=owner;
+    if(owner)SetWindowLongPtrW(window,GWLP_HWNDPARENT,reinterpret_cast<LONG_PTR>(GetAncestor(owner,GA_ROOT)));
+    bool wasVisible=IsWindowVisible(window)!=FALSE;
     MONITORINFO monitor{sizeof(monitor)};GetMonitorInfoW(MonitorFromRect(&caret,MONITOR_DEFAULTTONEAREST),&monitor);
-    HWND owner=GetFocus();scale=owner?GetDpiForWindow(owner):96;if(!scale)scale=96;
+    scale=owner?GetDpiForWindow(owner):96;if(!scale)scale=96;
     if(font)DeleteObject(font);font=CreateFontW(-px(16),0,0,0,FW_NORMAL,FALSE,FALSE,FALSE,DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY,DEFAULT_PITCH,L"Segoe UI");
     HDC dc=GetDC(window);auto old=SelectObject(dc,font);layout(dc,std::max(px(240),static_cast<int>(monitor.rcWork.right-monitor.rcWork.left)-px(16)));SelectObject(dc,old);ReleaseDC(window,dc);
     int x=std::clamp(static_cast<int>(caret.left),static_cast<int>(monitor.rcWork.left),std::max(static_cast<int>(monitor.rcWork.left),static_cast<int>(monitor.rcWork.right)-width));
     int y=caret.bottom+px(6);if(y+height>monitor.rcWork.bottom)y=caret.top-height-px(6);y=std::max(static_cast<int>(monitor.rcWork.top),y);
     SetWindowPos(window,HWND_TOPMOST,x,y,width,height,SWP_NOACTIVATE|SWP_SHOWWINDOW);InvalidateRect(window,nullptr,FALSE);
+    NotifyWinEvent(wasVisible?EVENT_OBJECT_IME_CHANGE:EVENT_OBJECT_IME_SHOW,window,OBJID_CLIENT,CHILDID_SELF);
 }
 bool Panel::moveVertical(Draft& draft,int direction,bool extend) {
     if(positions.size()!=draft.text.size()+1 || positions.empty())return false;

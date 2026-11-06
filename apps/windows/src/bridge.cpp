@@ -15,7 +15,7 @@ std::wstring PipeName() {
 TranslationBridge::TranslationBridge():worker([this]{run();}) {}
 TranslationBridge::~TranslationBridge() { stopping=true; ++serial; wake.notify_one(); if(worker.joinable())worker.join(); }
 void TranslationBridge::launch(bool settings) {
-    if(GetEnvironmentVariableW(L"SAYSPAN_TEST_NO_COMPANION",nullptr,0))return;
+    if(InAppContainer() || GetEnvironmentVariableW(L"SAYSPAN_TEST_NO_COMPANION",nullptr,0))return;
     if(!settings) {
         auto pipe=PipeName();
         if(pipe.size()>9) {auto name=L"Local\\"+pipe.substr(9);HANDLE running=OpenMutexW(SYNCHRONIZE,FALSE,name.c_str());if(running){CloseHandle(running);return;}}
@@ -57,9 +57,12 @@ void TranslationBridge::run() {
         Request request;
         {std::unique_lock lock(mutex);wake.wait(lock,[this]{return stopping || queued.has_value();});if(stopping)return;request=std::move(*queued);queued.reset();}
         TranslationReply result{request.revision,false,L"",L"Open Settings → Models to configure translation."};
+        const bool restricted=InAppContainer();
+        if(restricted)result.text=ChineseUI()?L"此应用限制句子翻译。按 Enter 输入原文。":L"Translation is unavailable in this restricted app. Press Enter to insert the source.";
         HANDLE pipe=INVALID_HANDLE_VALUE;
         auto name=PipeName();
-        for(int attempt=0;attempt<15 && !stopping && serial==request.serial;++attempt) {
+        // Restricted hosts retain source input without bypassing container IPC rules.
+        for(int attempt=0;!restricted && attempt<15 && !stopping && serial==request.serial;++attempt) {
             pipe=CreateFileW(name.c_str(),GENERIC_READ|GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OVERLAPPED|SECURITY_SQOS_PRESENT|SECURITY_IDENTIFICATION,nullptr);
             if(pipe!=INVALID_HANDLE_VALUE)break;
             if(attempt==0)launch();

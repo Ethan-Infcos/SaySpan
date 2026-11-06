@@ -221,6 +221,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
             if(GetCaretPos(&point) && window) { ClientToScreen(window,&point); rect={point.x,point.y,point.x+1,point.y+22}; }
             else if(window) { GetWindowRect(window,&rect); rect.bottom=rect.top+30; }
         }
+        HWND owner=nullptr;if(view)view->GetWnd(&owner);
         scheduleTranslation();CompositionActivity(true);
         if(focused) {
             ComPtr<ITfContext> target=context; unsigned revision=generation;
@@ -229,7 +230,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
                     if(generation!=revision || context.Get()!=target.Get() || !composition) return S_FALSE;
                     editor->choose(candidate); return update(edit);
                 });
-            });
+            },owner);
         }
         return S_OK;
     }

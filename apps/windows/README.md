@@ -1,4 +1,4 @@
-# SaySpan for Windows — 0.2.0 preview
+# SaySpan for Windows — 0.2.1 preview
 
 Windows 10 22H2 or Windows 11, **x64 only**. ARM64 and 32-bit applications are not
 supported in this preview. The installer is an unsigned development build.
@@ -62,6 +62,8 @@ Selection requires the application to expose a read-only selection through
 Windows UI Automation. Some custom controls, protected/elevated applications,
 and browser content do not expose this data. No clipboard-copy fallback runs
 silently. The native input service keeps working if the companion is unavailable.
+In restricted AppContainer hosts, source input is supported but sentence translation
+through the desktop companion is unavailable; Enter can still insert the source.
 
 ## Languages and interface
 

@@ -23,6 +23,20 @@ int wmain(int argc,wchar_t** argv) {
             }
             std::wcout<<L"ProfileCatalog: 0x"<<std::hex<<static_cast<unsigned long>(hr)<<L"\n";
         }
+        if(SUCCEEDED(hr)) {
+            ComPtr<ITfCategoryMgr> categories;
+            hr=CoCreateInstance(CLSID_TF_CategoryMgr,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&categories));
+            if(SUCCEEDED(hr)) {
+                ComPtr<IEnumGUID> list;hr=categories->EnumCategoriesInItem(ServiceId,&list);
+                bool keyboard=false,modern=false;GUID category{};ULONG count=0;
+                while(SUCCEEDED(hr) && list->Next(1,&category,&count)==S_OK && count==1) {
+                    keyboard=keyboard || category==GUID_TFCAT_TIP_KEYBOARD;
+                    modern=modern || category==GUID_TFCAT_TIPCAP_IMMERSIVESUPPORT;
+                }
+                if(!keyboard || !modern)hr=E_FAIL;
+                std::wcout<<L"ModernAppCategory: "<<(modern?L"present":L"missing")<<L"\n";
+            }
+        }
         if(FAILED(server))hr=server;
     } else if(action==L"--register" || action==L"--unregister") {
         wchar_t path[32768]{}; GetModuleFileNameW(nullptr,path,32768);

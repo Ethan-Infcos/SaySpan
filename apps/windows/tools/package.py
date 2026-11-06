@@ -30,7 +30,7 @@ def main():
         raise RuntimeError('Unexpected package payload contents')
     brand = json.loads((REPO / 'apps/macos/Resources/Branding.json').read_text())['name']
     run(compiler, f'/DBrand={brand}', f'/DPayload={payload}', f'/DArch={args.arch}', f'/DOutput={output}', ROOT / 'packaging/setup.iss')
-    installer = output / f'{brand}-0.2.0-preview-windows-{args.arch}-setup.exe'
+    installer = output / f'{brand}-0.2.1-preview-windows-{args.arch}-setup.exe'
     # Verify the actual installed copy and uninstall it on an isolated CI runner.
     target = work / 'installer-test'
     run(installer, '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', f'/DIR={target}', f'/LOG={work / "install.log"}')
@@ -46,9 +46,9 @@ def main():
     (output / 'SHA256SUMS.txt').write_text(f'{digest}  {installer.name}\n')
     (output / 'BUILD.json').write_text(json.dumps({
         'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
-        'architecture': args.arch, 'version': '0.2.0-preview',
+        'architecture': args.arch, 'version': '0.2.1-preview',
         'signing': 'Unsigned development preview',
-        'checks': ['editor', 'native Rime Chinese/Japanese', 'RichEdit TSF and Shift chords', 'translation provider and IPC', 'companion settings and credentials', 'selection accessibility', 'TSF companion HTTP insertion', 'COM registration', 'installer round-trip']
+        'checks': ['editor', 'native Rime Chinese/Japanese', 'AppContainer dictionaries', 'modern-app registration', 'RichEdit TSF and Shift chords', 'translation provider and IPC', 'companion settings and credentials', 'selection accessibility', 'TSF companion HTTP insertion', 'COM registration', 'installer round-trip']
     }, indent=2) + '\n')
 
 

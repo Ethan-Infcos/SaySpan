@@ -76,14 +76,19 @@ caret character into the text. Clipboard access occurs only for explicit shortcu
 Rime is initialized once per host process and serialized through its adapter lock.
 It reads precompiled dictionaries from the installed payload. Per-process writable
 scratch data is under `%LOCALAPPDATA%\SaySpan\Runtime`; it contains no learned words
-because Rime user dictionaries are disabled. Frequencies are stored separately in HKCU. Rime pins the loaded DLL until
+because Rime user dictionaries are disabled. AppContainer hosts use their own
+container-local data directory instead. Frequencies are stored separately in HKCU. Rime pins the loaded DLL until
 process exit, avoiding finalization inside the Windows loader lock. Close client
 apps before replacing or removing the installation.
 
 This is an unsigned development preview for native desktop applications, not a
 production release. It does not advertise secure-mode or UI-less TSF capabilities.
-Password fields and disabled input contexts pass through. Store/app-container,
-legacy, elevated and game compatibility need separate validation. Public signing,
+Password fields and disabled input contexts pass through. The service registers the modern-app (immersive) capability and owns its candidate
+window through the TSF context view, with IME visibility events. A CI AppContainer
+fixture checks Chinese/Japanese dictionaries using container-local scratch storage.
+Restricted hosts keep source input but cannot use the desktop companion pipe; no
+container permission is bypassed. Actual Windows Settings, other packaged apps,
+legacy, elevated and game compatibility still require application-level validation. Public signing,
 ARM64EC/ARM64X host interoperability, additional accessibility coverage, themes and updates
 remain future work. Do not disable Windows protections or auto-trust a certificate.
 
@@ -117,7 +122,9 @@ card toggles cannot be reverted by an unrelated Save from an older Settings view
 API credentials use current-user DPAPI and an endpoint-derived lookup key.
 Selection monitoring runs off the UI thread, requires read-only UI Automation
 text, and checks an expiring composition activity signal. It never synthesizes
-copy or pastes into source applications.
+copy or pastes into source applications. Capture is re-armed on startup and when
+either selection option changes. The foreground boundary follows UI Automation
+ancestry, including embedded providers from another process.
 
 Rime sessions remain process-local. Shared LevelDB dictionaries are deliberately
 not opened concurrently by every TSF host. Candidate frequency ranking persists

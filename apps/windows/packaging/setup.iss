@@ -10,8 +10,8 @@
 [Setup]
 AppId=SaySpan.Windows.Preview.{#Arch}
 AppName={#Brand} (Preview)
-AppVersion=0.2.0
-AppVerName={#Brand} Windows Preview 0.2.0
+AppVersion=0.2.1
+AppVerName={#Brand} Windows Preview 0.2.1
 AppPublisher=SaySpan contributors
 AppPublisherURL=https://github.com/Ethan-Infcos/SaySpan
 DefaultDirName={autopf}\SaySpan Preview
@@ -31,7 +31,7 @@ DisableDirPage=yes
 LicenseFile={#Payload}\LICENSE
 InfoAfterFile={#Payload}\README.txt
 OutputDir={#Output}
-OutputBaseFilename=SaySpan-0.2.0-preview-windows-{#Arch}-setup
+OutputBaseFilename=SaySpan-0.2.1-preview-windows-{#Arch}-setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

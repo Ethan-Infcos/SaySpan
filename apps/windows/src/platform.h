@@ -21,4 +21,10 @@ inline std::u16string utf16(const std::wstring& s) { return {s.begin(),s.end()};
 std::string utf8(const std::wstring& s);
 std::u16string fromUtf8(const char* s);
 bool ChineseUI();
+inline bool InAppContainer() {
+    HANDLE token=nullptr;DWORD restricted=0,size=sizeof(restricted);
+    if(!OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&token))return false;
+    bool ok=GetTokenInformation(token,TokenIsAppContainer,&restricted,size,&size)!=0;
+    CloseHandle(token);return ok && restricted!=0;
+}
 }

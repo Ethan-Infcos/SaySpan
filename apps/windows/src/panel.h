@@ -6,7 +6,7 @@ class Panel {
 public:
     Panel() = default;
     ~Panel();
-    void show(const Editor& editor, RECT caret, std::function<void(size_t)> choose);
+    void show(const Editor& editor, RECT caret, std::function<void(size_t)> choose, HWND owner=nullptr);
     void hide();
     void watch(std::function<void()> callback);
     void refresh(const Editor& editor);
@@ -18,6 +18,7 @@ private:
     std::wstring sentence, translation, status, language;
     size_t columns=5;
     RECT lastCaret{};
+    HWND lastOwner=nullptr;
     std::function<void()> tick;
     std::vector<POINT> positions;
     int sourceTop=38, sourceHeight=32, translationTop=0, translationHeight=0, sourceScroll=0, translationScroll=0, translationContentHeight=0;

@@ -25,6 +25,8 @@ API keys, confidential source text, or personal dictionary files with reports.
 | Traditional | Select Traditional Chinese, type `hanyu` | Traditional candidates such as `漢語` appear |
 | Frequency | Repeatedly choose a lower candidate, restart the host | That candidate ranks higher for the same spelling |
 | Selection | Select message/article text outside an editor | Stationary Translate button appears |
+| Startup | Enable selection and Automatic, restart the companion, select text without opening Settings | Card appears automatically |
+| Modern app | Select SaySpan in Windows Settings search, tap Shift, type `nihao` | Chinese candidates appear; Enter inserts source |
 | Automatic | Enable Automatic, dismiss, reselect | Translation card appears without another click |
 | Coherence | Keep Settings open, toggle Automatic in card, save unrelated setting | Card choice remains saved |
 | Suppression | Select or compose text inside an editable/password field | No external selection card |

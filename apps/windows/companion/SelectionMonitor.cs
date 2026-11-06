@@ -39,11 +39,14 @@ sealed class SelectionMonitor : IDisposable
     }
     void Post(Action action) { if (!disposed && !dispatcher.IsDisposed) try { dispatcher.BeginInvoke(action); } catch (InvalidOperationException) { } }
     async Task Monitor() {
+        var settings = new SelectionSettingsTracker();
         bool wasMouseDown = false, wasShift = false;
         long settledAt = 0; Drawing.Point selectedAt = default;
         while (!token.IsCancellationRequested && !disposed) {
             try {
                 await Task.Delay(100, token);
+                var preferences = Store.Read();
+                if(settings.Update(preferences)) {Post(Clear);GetCursorPos(out selectedAt);settledAt=preferences.SelectionEnabled?Environment.TickCount64+350:0;}
                 bool mouseDown = GetAsyncKeyState(1) < 0, shift = GetAsyncKeyState(0x10) < 0;
                 var requested = Interlocked.Exchange(ref pendingSelection, 0);
                 if(requested != 0) {GetCursorPos(out selectedAt);settledAt=requested;}
@@ -57,7 +60,7 @@ sealed class SelectionMonitor : IDisposable
                 var foreground = GetForegroundWindow(); GetWindowThreadProcessId(foreground, out uint process);
                 if (process == Environment.ProcessId) { wasMouseDown = mouseDown; wasShift = shift; continue; }
                 Post(() => { if (currentWindow != IntPtr.Zero && currentWindow != foreground) Clear(); });
-                if (!Store.Read().SelectionEnabled || Store.Composing()) { Post(Clear); settledAt = 0; wasMouseDown = mouseDown; wasShift = shift; continue; }
+                if (!preferences.SelectionEnabled || Store.Composing()) { Post(Clear); settledAt = 0; wasMouseDown = mouseDown; wasShift = shift; continue; }
                 if (mouseDown && !wasMouseDown) Post(Clear);
                 if (wasMouseDown && !mouseDown || wasShift && !shift) { GetCursorPos(out selectedAt); settledAt = Environment.TickCount64 + 350; }
                 wasMouseDown = mouseDown; wasShift = shift;
@@ -70,6 +73,15 @@ sealed class SelectionMonitor : IDisposable
             } catch (OperationCanceledException) { break; }
             catch (Exception e) when (e is ElementNotAvailableException or InvalidOperationException or COMException or UnauthorizedAccessException) { Post(Clear); }
         }
+    }
+    static bool InSourceWindow(AutomationElement node, AutomationElement root) {
+        // Embedded document providers may belong to another process. UI ancestry,
+        // rather than a PID equality test, establishes the foreground boundary.
+        for(int depth=0;node!=null && depth<64;depth++) {
+            if(Automation.Compare(node,root))return true;
+            node=TreeWalker.RawViewWalker.GetParent(node);
+        }
+        return false;
     }
     internal static SelectedText? ReadSelection(Drawing.Point point, IntPtr foreground, Action<string>? trace = null) {
         // Hit-test the selected content first; focused controls may still be an unrelated editor.
@@ -92,8 +104,7 @@ sealed class SelectionMonitor : IDisposable
                 var properties = node.Current;
                 trace?.Invoke($"Node {properties.ClassName} pid={properties.ProcessId} type={properties.ControlType.ProgrammaticName} password={properties.IsPassword}");
                 if (properties.ProcessId == Environment.ProcessId || properties.IsPassword) break;
-                GetWindowThreadProcessId(foreground, out uint pid);
-                if (properties.ProcessId != pid) break;
+                if (!InSourceWindow(node,root)) break;
                 if (!node.TryGetCurrentPattern(TextPattern.Pattern, out var value)) {trace?.Invoke("No TextPattern");continue;}
                 var pattern = (TextPattern)value;
                 foreach (var range in pattern.GetSelection()) {

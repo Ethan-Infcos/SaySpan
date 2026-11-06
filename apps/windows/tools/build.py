@@ -36,6 +36,7 @@ def main():
     run(binary / 'runtime_tests.exe', '--deploy', data, deploy)
     shutil.copytree(deploy / 'build', data / 'build', dirs_exist_ok=True)
     run(binary / 'runtime_tests.exe', work / 'test-user')
+    run(binary / 'sandbox_tests.exe', binary)
     os.environ['SAYSPAN_TEST_NO_COMPANION'] = '1'
     run(binary / 'SaySpanRegister.exe', '--register')
     try:

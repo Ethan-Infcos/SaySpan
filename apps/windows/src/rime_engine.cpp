@@ -2,6 +2,8 @@
 #include "preferences.h"
 #include <rime_api.h>
 #include <shlobj.h>
+#include <userenv.h>
+#include <sddl.h>
 #include <mutex>
 #include <stdexcept>
 #include <cstring>
@@ -51,7 +53,7 @@ bool InitializeRime(const std::filesystem::path& data,const std::filesystem::pat
     RIME_STRUCT(RimeTraits,traits);
     traits.shared_data_dir=sharedPath.c_str(); traits.user_data_dir=userPath.c_str();
     traits.prebuilt_data_dir=buildPath.c_str(); traits.distribution_name="SaySpan";
-    traits.distribution_code_name="sayspan_windows"; traits.distribution_version="0.2.0";
+    traits.distribution_code_name="sayspan_windows"; traits.distribution_version="0.2.1";
     traits.app_name="rime.sayspan"; traits.min_log_level=4; traits.log_dir="";
     api->setup(&traits); api->initialize(&traits);
     if (deploy) {
@@ -67,7 +69,22 @@ RimeEngine::RimeEngine(const std::wstring& value):language(value) {
     std::lock_guard lock(mutex);
     if (!api) {
         PWSTR local=nullptr;
-        if (FAILED(SHGetKnownFolderPath(FOLDERID_LocalAppData,0,nullptr,&local))) throw std::runtime_error("No user data directory");
+        HRESULT location=E_FAIL;
+        if(InAppContainer()) {
+            HANDLE token=nullptr;
+            if(OpenProcessToken(GetCurrentProcess(),TOKEN_QUERY,&token)) {
+                DWORD length=0;GetTokenInformation(token,TokenAppContainerSid,nullptr,0,&length);
+                std::vector<BYTE> buffer(length);
+                if(GetTokenInformation(token,TokenAppContainerSid,buffer.data(),length,&length)) {
+                    LPWSTR sid=nullptr;
+                    if(ConvertSidToStringSidW(reinterpret_cast<TOKEN_APPCONTAINER_INFORMATION*>(buffer.data())->TokenAppContainer,&sid)) {
+                        location=GetAppContainerFolderPath(sid,&local);LocalFree(sid);
+                    }
+                }
+                CloseHandle(token);
+            }
+        } else location=SHGetKnownFolderPath(FOLDERID_LocalAppData,0,nullptr,&local);
+        if(FAILED(location))throw std::runtime_error("No application data directory");
         std::filesystem::path user=std::filesystem::path(local)/L"SaySpan"/L"Runtime"/std::to_wstring(GetCurrentProcessId());
         CoTaskMemFree(local);
         if (!InitializeRime(ModuleFolder()/L"data",user,false)) throw std::runtime_error("Rime initialization failed");
