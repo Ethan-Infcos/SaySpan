@@ -36,4 +36,5 @@ Upload only `website/dist/` to a static host. Serve directory `index.html` files
 return `404.html` for missing routes, and use HTTPS. The generated content uses
 same-origin assets and supports a Content Security Policy without inline scripts.
 Infrastructure credentials, DNS automation, and production server configuration
-are intentionally outside this public source tree.
+are excluded from version control. A local ignored `deploy/` directory may contain
+operations tooling; it is not needed to build this website.

@@ -6,6 +6,9 @@
   dependencies, tests, and installer templates stay with that platform.
 - `website/` is portable public website source. Never add production infrastructure
   credentials or private deployment state here.
+- Root `deploy/`, when present, is an ignored local operations workspace. Its scripts
+  use `website/` as the source; configuration, credentials, and deployment records
+  must remain untracked. Read its local README before deployment.
 - `docs/platforms.md` describes future platform boundaries. Do not create empty
   abstractions or claim support for platforms that have not been implemented.
 - Read the relevant source and documentation before editing. Keep changes focused.

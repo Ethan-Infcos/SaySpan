@@ -1,4 +1,5 @@
 # Build products, local diagnostics, and private deployment state
+/deploy/
 .build/
 dist/
 .local/
