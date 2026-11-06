@@ -11,6 +11,8 @@
 namespace sayspan {
 HINSTANCE module = nullptr;
 std::atomic<long> objects{0};
+// Process-local counters for the native test harness; never record text or key values.
+static DWORD diagnostics[5]{};
 
 // Edit sessions own the service until Windows grants the document write lock.
 class EditSession final : public ITfEditSession {
@@ -249,10 +251,12 @@ public:
     ULONG STDMETHODCALLTYPE Release() override { auto count=--refs; if(!count) delete this; return count; }
     HRESULT STDMETHODCALLTYPE Activate(ITfThreadMgr* value,TfClientId id) override { return ActivateEx(value,id,0); }
     HRESULT STDMETHODCALLTYPE ActivateEx(ITfThreadMgr* value,TfClientId id,DWORD flags) override {
+        ++diagnostics[0]; diagnostics[1]=flags;
         if(flags&TF_TMAE_SECUREMODE) return E_ACCESSDENIED;
         manager=value; client=id; focused=true;
         ComPtr<ITfKeystrokeMgr> keys; HRESULT hr=manager.As(&keys);
         if(SUCCEEDED(hr)) hr=keys->AdviseKeyEventSink(client,this,TRUE);
+        diagnostics[2]=static_cast<DWORD>(hr);
         if(FAILED(hr)) { manager.Reset(); client=TF_CLIENTID_NULL; return hr; }
         ComPtr<ITfSource> source;
         if(SUCCEEDED(manager.As(&source))) {
@@ -275,6 +279,7 @@ public:
     HRESULT STDMETHODCALLTYPE OnSetFocus(BOOL foreground) override { if(!foreground) { focused=false; panel.hide(); } else focused=true; return S_OK; }
     HRESULT STDMETHODCALLTYPE OnTestKeyDown(ITfContext* ctx,WPARAM vk,LPARAM flags,BOOL* eaten) override {
         if(!eaten) return E_POINTER; *eaten=FALSE;
+        ++diagnostics[3]; diagnostics[4]=allowed(ctx);
         try { if(allowed(ctx)) { auto input=key(vk,flags); *eaten=clipboardKey(vk) || input.has_value() || shortcut(vk); } } catch(...) {}
         return S_OK;
     }
@@ -353,3 +358,5 @@ extern "C" HRESULT WINAPI DllGetClassObject(REFCLSID clsid,REFIID iid,void** out
     auto factory=new(std::nothrow)sayspan::Factory;if(!factory)return E_OUTOFMEMORY;
     HRESULT hr=factory->QueryInterface(iid,out);factory->Release();return hr;
 }
+
+extern "C" void WINAPI SaySpanTestState(DWORD* output) { if(output) for(int i=0;i<5;++i)output[i]=sayspan::diagnostics[i]; }

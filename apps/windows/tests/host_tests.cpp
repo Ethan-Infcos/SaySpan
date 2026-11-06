@@ -38,7 +38,17 @@ int wmain(){
             SetKeyboardState(keyboard);
             BOOL eat=FALSE; LPARAM flags=static_cast<LPARAM>(MapVirtualKeyW(static_cast<UINT>(vk),MAPVK_VK_TO_VSC))<<16;
             verify(keys->TestKeyDown(vk,flags,&eat),"test key");
-            if(!eat){std::cerr<<"Rejected key "<<vk<<", caps="<<GetKeyState(VK_CAPITAL)<<", own focus="<<(GetFocus()==edit)<<"\n";throw std::runtime_error("key was not accepted");}
+            if(!eat){
+                DWORD session=0; ProcessIdToSessionId(GetCurrentProcessId(),&session);
+                USEROBJECTFLAGS station{}; DWORD bytes=0;
+                GetUserObjectInformationW(GetProcessWindowStation(),UOI_FLAGS,&station,sizeof(station),&bytes);
+                HMODULE tip=GetModuleHandleW(L"SaySpanTip.dll"); DWORD state[5]{};
+                auto snapshot=tip?reinterpret_cast<void(WINAPI*)(DWORD*)>(GetProcAddress(tip,"SaySpanTestState")):nullptr;
+                if(snapshot)snapshot(state);
+                std::cerr<<"Session="<<session<<", visible="<<bool(station.dwFlags&WSF_VISIBLE)<<", loaded="<<bool(tip)
+                         <<", activation="<<state[0]<<", flags="<<state[1]<<", advise="<<std::hex<<state[2]<<std::dec
+                         <<", tests="<<state[3]<<", allowed="<<state[4]<<"\n";
+                std::cerr<<"Rejected key "<<vk<<", caps="<<GetKeyState(VK_CAPITAL)<<", own focus="<<(GetFocus()==edit)<<"\n";throw std::runtime_error("key was not accepted");}
             verify(keys->KeyDown(vk,flags,&eat),"key down");pump();
         };
         for(wchar_t c:std::wstring(L"NIHAO"))key(c);
