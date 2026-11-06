@@ -1,4 +1,5 @@
 #include "platform.h"
+#include "branding.h"
 #include <string>
 namespace sayspan {
 std::wstring RegistryKey() {
@@ -29,7 +30,7 @@ HRESULT RegisterService(bool install) {
     if(status==ERROR_SUCCESS)status=RegSetValueExW(handle,L"ThreadingModel",0,REG_SZ,reinterpret_cast<const BYTE*>(threading),sizeof(threading));
     RegCloseKey(handle);
     if(status!=ERROR_SUCCESS)return HRESULT_FROM_WIN32(status);
-    const wchar_t name[]=L"SaySpan (Preview)";
+    const wchar_t* name=ProfileName;
     hr=profiles->RegisterProfile(ServiceId,ProfileLanguage,ProfileId,name,static_cast<ULONG>(wcslen(name)),path.c_str(),static_cast<ULONG>(path.size()),0,nullptr,0,TRUE,0);
     if(SUCCEEDED(hr))hr=categories->RegisterCategory(ServiceId,GUID_TFCAT_TIP_KEYBOARD,ServiceId);
     if(FAILED(hr)) { profiles->UnregisterProfile(ServiceId,ProfileLanguage,ProfileId,0); RegDeleteTreeW(HKEY_LOCAL_MACHINE,key.c_str()); }

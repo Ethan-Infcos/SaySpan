@@ -9,9 +9,9 @@
 #endif
 [Setup]
 AppId=SaySpan.Windows.Preview.{#Arch}
-AppName=SaySpan (Preview)
+AppName={#Brand} (Preview)
 AppVersion=0.1.0
-AppVerName=SaySpan Windows Preview 0.1.0
+AppVerName={#Brand} Windows Preview 0.1.0
 AppPublisher=SaySpan contributors
 AppPublisherURL=https://github.com/Ethan-Infcos/SaySpan
 DefaultDirName={autopf}\SaySpan Preview
@@ -37,7 +37,7 @@ SolidCompression=yes
 WizardStyle=modern
 CloseApplications=no
 RestartApplications=no
-UninstallDisplayName=SaySpan (Preview)
+UninstallDisplayName={#Brand} (Preview)
 UninstallDisplayIcon={app}\SaySpanTip.dll
 [Files]
 Source: "{#Payload}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs restartreplace uninsrestartdelete

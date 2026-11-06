@@ -27,7 +27,8 @@ def main():
     allowed = {'SaySpanTip.dll', 'SaySpanRegister.exe', 'rime.dll', 'data', 'licenses', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'README.txt'}
     if {p.name for p in payload.iterdir()} != allowed:
         raise RuntimeError('Unexpected package payload contents')
-    run(compiler, f'/DPayload={payload}', f'/DArch={args.arch}', f'/DOutput={output}', ROOT / 'packaging/setup.iss')
+    brand = json.loads((REPO / 'apps/macos/Resources/Branding.json').read_text())['name']
+    run(compiler, f'/DBrand={brand}', f'/DPayload={payload}', f'/DArch={args.arch}', f'/DOutput={output}', ROOT / 'packaging/setup.iss')
     installer = next(output.glob('*-setup.exe'))
     # Verify the actual installed copy and uninstall it on an isolated CI runner.
     target = work / 'installer-test'

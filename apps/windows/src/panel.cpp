@@ -1,4 +1,5 @@
 #include "panel.h"
+#include "ui.h"
 #include <windowsx.h>
 namespace sayspan {
 Panel::~Panel() { if(window) DestroyWindow(window); if(font) DeleteObject(font); }
@@ -33,7 +34,7 @@ void Panel::show(const Editor& editor,RECT caret,std::function<void(size_t)> cho
         wc.lpszClassName=L"SaySpan.CandidatePanel.v1"; wc.hCursor=LoadCursor(nullptr,IDC_ARROW);
         if(!RegisterClassExW(&wc) && GetLastError()!=ERROR_CLASS_ALREADY_EXISTS) return;
         window=CreateWindowExW(WS_EX_TOPMOST|WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE,
-            wc.lpszClassName,L"SaySpan",WS_POPUP|WS_BORDER,0,0,1,1,nullptr,nullptr,module,this);
+            wc.lpszClassName,AppName,WS_POPUP|WS_BORDER,0,0,1,1,nullptr,nullptr,module,this);
         if(!window) return;
     }
     MONITORINFO monitor{sizeof(monitor)};
@@ -60,7 +61,7 @@ void Panel::paint() {
     auto previous=SelectObject(dc,font); SetBkMode(dc,TRANSPARENT);
     SetTextColor(dc,RGB(100,107,120));
     RECT title{px(14),px(8),width-px(14),px(31)};
-    DrawTextW(dc,ChineseUI()?L"SaySpan · 中文":L"SaySpan · Chinese",-1,&title,DT_SINGLELINE|DT_NOPREFIX);
+    DrawTextW(dc,ModeTitle().c_str(),-1,&title,DT_SINGLELINE|DT_NOPREFIX);
     int saved=SaveDC(dc); IntersectClipRect(dc,px(14),px(36),width-px(14),px(68));
     SIZE before{}; GetTextExtentPoint32W(dc,sentence.c_str(),static_cast<int>(std::min(caretPosition,sentence.size())),&before);
     int offset=std::max(0,static_cast<int>(before.cx)-(width-px(42)));
@@ -86,9 +87,7 @@ void Panel::paint() {
     }
     RECT footer{px(14),height-px(28),width-px(12),height-px(5)};
     SetTextColor(dc,RGB(100,107,120));
-    const wchar_t* hint=candidates.spelling.empty() ?
-        (ChineseUI()?L"Enter 上屏 · Shift + 方向键选择":L"Enter: insert · Shift + arrows: select") :
-        (ChineseUI()?L"空格选词 · 方向键 / PgUp / PgDn · Enter 保留字母":L"Space: choose · Arrows / PgUp / PgDn · Enter: keep letters");
+    const wchar_t* hint=EditorHint(!candidates.spelling.empty());
     DrawTextW(dc,hint,-1,&footer,DT_SINGLELINE|DT_NOPREFIX);
     SelectObject(dc,previous); EndPaint(window,&ps);
 }
