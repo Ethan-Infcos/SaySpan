@@ -38,6 +38,7 @@ sealed class Companion : Forms.ApplicationContext
     readonly CancellationTokenSource stopping = new();
     readonly HttpClient http = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(90) };
     readonly Forms.NotifyIcon tray;
+    readonly SemaphoreSlim connections = new(8);
     readonly SelectionMonitor selection;
     SettingsWindow? settings;
     public Companion(bool show) {
@@ -58,11 +59,22 @@ sealed class Companion : Forms.ApplicationContext
     }
     async Task Serve(TranslationProvider provider, CancellationToken token) {
         while (!token.IsCancellationRequested) {
-            var pipe = new NamedPipeServerStream(Program.PipeName, PipeDirection.InOut, 16, PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
-            try { await pipe.WaitForConnectionAsync(token); _ = Handle(pipe, provider, token); }
-            catch (OperationCanceledException) { pipe.Dispose(); break; }
-            catch (IOException) { pipe.Dispose(); await Task.Delay(250, token); }
+            NamedPipeServerStream? pipe = null;
+            bool acquired = false;
+            try {
+                await connections.WaitAsync(token); acquired = true;
+                pipe = new NamedPipeServerStream(Program.PipeName, PipeDirection.InOut, 16, PipeTransmissionMode.Byte, PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly);
+                await pipe.WaitForConnectionAsync(token);
+                _ = HandleAndRelease(pipe, provider, token); acquired = false; pipe = null;
+            }
+            catch (OperationCanceledException) { break; }
+            catch (IOException) { if(!token.IsCancellationRequested) await Task.Delay(250, token); }
+            finally { pipe?.Dispose(); if(acquired) connections.Release(); }
         }
+    }
+    async Task HandleAndRelease(NamedPipeServerStream pipe, TranslationProvider provider, CancellationToken token) {
+        try { await Handle(pipe, provider, token); }
+        finally { connections.Release(); }
     }
     async Task Handle(NamedPipeServerStream pipe, TranslationProvider provider, CancellationToken stoppingToken) {
         using (pipe)

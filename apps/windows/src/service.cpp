@@ -57,13 +57,13 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
     unsigned translationRevision=0;
     ULONGLONG translationDue=0;
     std::u16string translationSource;
-    bool wasPending=false, publishedActivity=false;
+    bool wasPending=false, publishedActivity=false, translationInFlight=false;
     ULONGLONG activityPublishedAt=0;
     std::wstring engineLanguage;
     HKL layout=nullptr;
     std::wstring layoutLanguage;
     void invalidateTranslation() {
-        ++translationRevision;bridge.cancel();translationDue=0;translationSource.clear();wasPending=false;
+        ++translationRevision;bridge.cancel();translationDue=0;translationInFlight=false;translationSource.clear();wasPending=false;
         if(editor){editor->translation.clear();editor->translationStatus.clear();}
     }
     void scheduleTranslation() {
@@ -81,8 +81,9 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
             if(visible && GetTickCount64()-activityPublishedAt>=500) {CompositionActivity(true);publishedActivity=true;activityPublishedAt=GetTickCount64();}
             else if(!visible && publishedActivity) {CompositionActivity(false);publishedActivity=false;}
             if(!visible)return;
-            if(translationDue && GetTickCount64()>=translationDue) {translationDue=0;bridge.submit(translationRevision,editor->language,wide(translationSource));}
+            if(translationDue && GetTickCount64()>=translationDue) {translationDue=0;translationInFlight=true;bridge.submit(translationRevision,editor->language,wide(translationSource));}
             if(auto result=bridge.take();result && result->revision==translationRevision && !editor->pending()) {
+                translationInFlight=false;
                 if(result->success)editor->translation=utf16(result->text);
                 else editor->translationStatus=ChineseUI()?u"翻译不可用，请检查设置 → 模型。":utf16(result->text);
                 panel.refresh(*editor);
@@ -366,6 +367,9 @@ public:
                 HRESULT result=start(target.Get(),cookie); if(FAILED(result)) return result;
                 if(clip) clipboard(vk);
                 else {
+                    if(input->key==Key::Tab && !editor->pending() && editor->translation.empty() && !translationDue && !translationInFlight && !editor->draft.text.empty()) {
+                        translationDue=GetTickCount64();editor->translationStatus=ChineseUI()?u"翻译中…":u"Translating…";
+                    }
                     Result outcome;
                     if(!editor->pending() && (input->key==Key::Up || input->key==Key::Down) && panel.moveVertical(editor->draft,input->key==Key::Up?-1:1,input->shift))outcome={};
                     else outcome=editor->process(*input);
