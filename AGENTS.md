@@ -2,7 +2,9 @@
 
 ## Scope and structure
 
-- `apps/macos/` is the implemented native application. Build scripts, resources,
+- `apps/windows/` is the native TSF input preview; see `docs/development/windows.md`.
+  Registration and installer tests must run in isolated Windows CI sessions.
+- `apps/macos/` is the macOS native application. Build scripts, resources,
   dependencies, tests, and installer templates stay with that platform.
 - `website/` is portable public website source. Never add production infrastructure
   credentials or private deployment state here.
@@ -42,7 +44,9 @@ run live provider tests without considering the configured endpoint and data sen
 ## Behavioral contracts
 
 Preserve the contracts in `docs/architecture.md` and `docs/platforms.md`.
-Keep the physical Caps Lock state authoritative, preserve draft text on errors,
-discard stale translations, and separate external selection from composition.
+Keep the macOS physical Caps Lock state authoritative. Windows uses Shift-tap
+language switching and keeps Caps Lock for capitalization; follow its platform guide.
+Preserve draft text on errors, discard stale translations, and separate external
+selection from composition.
 Use `apps/macos/Resources/Branding.json` and localized strings for display names.
 Historical persistent IDs must not be renamed without an explicit migration.

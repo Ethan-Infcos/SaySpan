@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><UseWPF>true</UseWPF><EnableWindowsTargeting>true</EnableWindowsTargeting><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><AssemblyName>SaySpan</AssemblyName><ApplicationManifest>app.manifest</ApplicationManifest><Version>0.2.1</Version></PropertyGroup>
+  <ItemGroup><Compile Remove="Core/**;Tests/**"/><ProjectReference Include="Core/SaySpan.Core.csproj"/><EmbeddedResource Include="../../macos/Resources/Branding.json" Link="Branding.json"/></ItemGroup>
+</Project>

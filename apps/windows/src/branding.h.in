@@ -1,0 +1,5 @@
+#pragma once
+namespace sayspan {
+inline constexpr wchar_t AppName[] = L"@SAYSPAN_NAME@";
+inline constexpr wchar_t ProfileName[] = L"@SAYSPAN_NAME@ (Preview)";
+}

@@ -1,0 +1,51 @@
+name: Windows preview
+on:
+  push:
+    branches: [main, codex/windows-mvp]
+  pull_request:
+    paths: ['apps/windows/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-2025
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Cache pinned dependencies
+        id: deps-cache
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: apps/windows/.build/${{ matrix.arch }}/dependencies
+          key: windows-deps-${{ matrix.arch }}-${{ hashFiles('apps/windows/tools/dependencies.py', 'apps/macos/Packaging/Dependencies.json', 'apps/macos/Tools/BuildDependencies.py') }}
+      - name: Build pinned dependencies
+        run: python apps/windows/tools/dependencies.py --arch ${{ matrix.arch }}
+      - name: Save dependency cache
+        if: steps.deps-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: apps/windows/.build/${{ matrix.arch }}/dependencies
+          key: ${{ steps.deps-cache.outputs.cache-primary-key }}
+      - name: Build and test native input service
+        run: python apps/windows/tools/build.py --arch ${{ matrix.arch }}
+      - name: Package and test installer
+        run: python apps/windows/tools/package.py --arch ${{ matrix.arch }}
+      - name: Save preview installer
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows-preview-${{ matrix.arch }}
+          path: dist/windows/${{ matrix.arch }}
+          include-hidden-files: true
+          retention-days: 30
