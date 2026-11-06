@@ -2,7 +2,7 @@
 #include <windowsx.h>
 namespace sayspan {
 Panel::~Panel() { if(window) DestroyWindow(window); if(font) DeleteObject(font); }
-void Panel::hide() { if(window) ShowWindow(window,SW_HIDE); }
+void Panel::hide() { select={}; if(window) ShowWindow(window,SW_HIDE); }
 void Panel::layout(HDC dc,int maxWidth) {
     width=std::min(px(640),maxWidth);
     boxes.clear(); int x=px(14),y=px(78);

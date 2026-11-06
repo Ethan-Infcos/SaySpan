@@ -175,6 +175,11 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
             return generation==revision && context.Get()==target.Get()?finish(cookie):S_FALSE;
         });
     }
+    bool shortcut(WPARAM vk) const {
+        return active() && ((GetKeyState(VK_CONTROL)&0x8000) || (GetKeyState(VK_MENU)&0x8000) ||
+            (GetKeyState(VK_LWIN)&0x8000) || (GetKeyState(VK_RWIN)&0x8000)) &&
+            vk!=VK_SHIFT && vk!=VK_CONTROL && vk!=VK_MENU && vk!=VK_LWIN && vk!=VK_RWIN;
+    }
     bool clipboardKey(WPARAM key) const {
         return active() && (GetKeyState(VK_CONTROL)&0x8000) && !(GetKeyState(VK_MENU)&0x8000) && (key=='C'||key=='X'||key=='V');
     }
@@ -249,7 +254,7 @@ public:
     HRESULT STDMETHODCALLTYPE OnSetFocus(BOOL foreground) override { if(!foreground) { focused=false; panel.hide(); } else focused=true; return S_OK; }
     HRESULT STDMETHODCALLTYPE OnTestKeyDown(ITfContext* ctx,WPARAM vk,LPARAM flags,BOOL* eaten) override {
         if(!eaten) return E_POINTER; *eaten=FALSE;
-        try { if(allowed(ctx)) { auto input=key(vk,flags); *eaten=clipboardKey(vk) || input.has_value(); } } catch(...) {}
+        try { if(allowed(ctx)) { auto input=key(vk,flags); *eaten=clipboardKey(vk) || input.has_value() || shortcut(vk); } } catch(...) {}
         return S_OK;
     }
     HRESULT STDMETHODCALLTYPE OnKeyDown(ITfContext* ctx,WPARAM vk,LPARAM flags,BOOL* eaten) override {
@@ -269,6 +274,10 @@ public:
                     if(outcome.commit || outcome.cancel) return finish(cookie,outcome.cancel);
                 }
                 if(!editor->active()) return finish(cookie);
+                ComPtr<ITfDocumentMgr> current, owner;
+                if(manager) manager->GetFocus(&current);
+                target->GetDocumentMgr(&owner);
+                if(!focused || !current || current.Get()!=owner.Get()) return finish(cookie);
                 return update(cookie);
             });
             *eaten=SUCCEEDED(hr) && (clip || (input->key!=Key::CapsLock && input->key!=Key::Tab));

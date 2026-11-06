@@ -27,6 +27,7 @@ def main():
     run(binary / 'SaySpanRegister.exe', '--register')
     try:
         run(binary / 'SaySpanRegister.exe', '--verify')
+        run(binary / 'host_tests.exe')
     finally:
         run(binary / 'SaySpanRegister.exe', '--unregister')
     payload = work / 'payload'

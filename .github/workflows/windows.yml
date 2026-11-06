@@ -42,10 +42,12 @@ jobs:
           key: ${{ steps.deps-cache.outputs.cache-primary-key }}
       - name: Build and test native input service
         run: python apps/windows/tools/build.py --arch ${{ matrix.arch }}
-      - name: Save preview payload
+      - name: Package and test installer
+        run: python apps/windows/tools/package.py --arch ${{ matrix.arch }}
+      - name: Save preview installer
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: windows-preview-${{ matrix.arch }}
-          path: apps/windows/.build/${{ matrix.arch }}/payload
+          path: dist/windows/${{ matrix.arch }}
           include-hidden-files: true
-          retention-days: 3
+          retention-days: 30
