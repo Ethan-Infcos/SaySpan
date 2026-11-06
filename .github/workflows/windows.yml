@@ -1,0 +1,37 @@
+name: Windows preview
+on:
+  push:
+    branches: [codex/windows-mvp]
+  pull_request:
+    paths: ['apps/windows/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-2025
+          - arch: ARM64
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build pinned dependencies
+        run: python apps/windows/tools/dependencies.py --arch ${{ matrix.arch }}
+      - name: Save dependency build for verification
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows-dependencies-${{ matrix.arch }}
+          path: apps/windows/.build/${{ matrix.arch }}/dependencies/prefix
+          include-hidden-files: true
+          retention-days: 3
