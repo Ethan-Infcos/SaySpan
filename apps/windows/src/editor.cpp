@@ -41,6 +41,21 @@ void Draft::move(int direction, bool extend) {
     else caret = direction < 0 ? previous(text, caret) : next(text, caret);
     if (!extend) anchor = caret;
 }
+void Draft::vertical(int direction, bool extend) {
+    size_t begin=caret?text.rfind(u'\n',caret-1):std::u16string::npos;
+    begin=begin==std::u16string::npos?0:begin+1;
+    size_t column=caret-begin;
+    if(direction<0) {
+        if(!begin)caret=0;
+        else {size_t previous=begin>1?text.rfind(u'\n',begin-2):std::u16string::npos; previous=previous==std::u16string::npos?0:previous+1;caret=std::min(previous+column,begin-1);}
+    } else {
+        size_t end=text.find(u'\n',caret);
+        if(end==std::u16string::npos)caret=text.size();
+        else {size_t next=text.find(u'\n',end+1);if(next==std::u16string::npos)next=text.size();caret=std::min(end+1+column,next);}
+    }
+    if(caret && caret<text.size() && low(text[caret]) && high(text[caret-1]))--caret;
+    if(!extend)anchor=caret;
+}
 void Draft::home(bool extend) { caret = 0; if (!extend) anchor = caret; }
 void Draft::finish(bool extend) { caret = text.size(); if (!extend) anchor = caret; }
 void Draft::undo() {
@@ -59,11 +74,13 @@ void Editor::resolve(bool literal) {
     if (literal) { auto text = engine.literal(); engine.clear(); draft.insert(text); }
     else { engine.confirm(); drain(); }
 }
-void Editor::choose(size_t index) { engine.choose(index); drain(); }
+void Editor::choose(size_t index) { engine.choose(index); drain(); if(!pending()) { expanded=false; engine.expand(false,columns); } }
 Result Editor::process(const Input& input) {
     switch (input.key) {
     case Key::SwitchLanguage: resolve(false); return {false, active(), false};
-    case Key::Tab: resolve(false); return {false, active(), false};
+    case Key::Tab:
+        if(pending() || translation.empty()) return {};
+        draft.selectAll(); draft.insert(translation); return {true,active(),false};
     case Key::Enter:
         if (pending()) { resolve(true); return {}; }
         return {active(), active(), false};
@@ -80,12 +97,17 @@ Result Editor::process(const Input& input) {
     case Key::SelectAll: resolve(true); draft.selectAll(); return {};
     case Key::Undo: if (pending()) engine.clear(); else draft.undo(); return {};
     case Key::Left: case Key::Right: case Key::Up: case Key::Down:
-        if (pending()) engine.move(input.key == Key::Left || input.key == Key::Up ? -1 : 1);
-        else draft.move(input.key == Key::Left || input.key == Key::Up ? -1 : 1, input.shift);
+        if (pending()) {
+            int delta=input.key==Key::Left || input.key==Key::Up?-1:1;
+            if(expanded && (input.key==Key::Up || input.key==Key::Down))delta*=static_cast<int>(columns);
+            engine.move(delta);
+        } else if(input.key==Key::Up || input.key==Key::Down) draft.vertical(input.key==Key::Up?-1:1,input.shift);
+        else draft.move(input.key==Key::Left?-1:1,input.shift);
         return {};
     case Key::Home: if (pending()) engine.page(true); else draft.home(input.shift); return {};
     case Key::End: if (pending()) engine.page(false); else draft.finish(input.shift); return {};
-    case Key::PageUp: case Key::PageDown: if (pending()) engine.page(input.key == Key::PageUp); return {};
+    case Key::PageUp: case Key::PageDown:
+        if(pending()) { if(!expanded) {expanded=true;engine.expand(true,columns);} else engine.page(input.key==Key::PageUp); } return {};
     case Key::Space:
         if (pending()) { auto c = engine.state(); if (!c.candidates.empty()) choose(c.highlighted); else resolve(true); }
         else draft.insert(u" ");
@@ -94,11 +116,19 @@ Result Editor::process(const Input& input) {
         if (marked().size() >= 8192 && !draft.selected()) return {};
         if (input.text.size() == 1) {
             char16_t c = input.text.front();
-            if (!input.shift && c >= u'1' && c <= u'5' && pending()) {
-                choose(static_cast<size_t>(c-u'1')); return {};
+            if (!input.shift && c >= u'1' && c < u'1'+columns && pending()) {
+                auto row=engine.state().highlighted/columns;choose(row*columns+static_cast<size_t>(c-u'1')); return {};
             }
-            if (!input.shift && ((c >= u'a' && c <= u'z') || c == u'\'')) {
-                engine.type(static_cast<char>(c)); drain(); return {};
+            if (useCandidates && !input.shift && ((c >= u'a' && c <= u'z') || c == u'\'')) {
+                if(!pending()) {expanded=false;engine.expand(false,columns);} engine.type(static_cast<char>(c)); drain(); return {};
+            }
+        }
+        if(language==L"zh" || language==L"zh-Hant" || language==L"ja") {
+            const std::u16string ascii=u",.;:?!()[]<>\\$";
+            const std::u16string full=u"，。；：？！（）【】《》、￥";
+            if(input.text.size()==1) {
+                auto index=ascii.find(input.text[0]);
+                if(index!=std::u16string::npos) {resolve(false);draft.insert({full[index]});return {};}
             }
         }
         resolve(true);

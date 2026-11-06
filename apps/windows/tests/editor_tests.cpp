@@ -45,10 +45,15 @@ int main(){try {
     auto r=e.process({Key::Enter,{}});check(r.commit&&r.handled,"enter commits resolved sentence");
     e.reset();e.process({Key::Text,u"n"});r=e.process({Key::SwitchLanguage,{}});
     check(r.commit&&!r.handled&&e.draft.text==u"你好","Language switch confirms source before changing mode");
-    e.reset();e.process({Key::Text,u"n"});e.process({Key::PageDown,{}});check(f.pages==1,"page forwarded");
+    e.reset();e.process({Key::Text,u"n"});e.process({Key::PageDown,{}});check(e.expanded&&f.pages==0,"first page key expands candidates");e.process({Key::PageDown,{}});check(f.pages==1,"second page key pages");
     e.process({Key::Escape,{}});check(!e.active(),"clear pending closes panel");
     e.draft.insert(u"Keep");e.process({Key::SelectAll,{}});check(e.draft.selection()==u"Keep","draft select all");
     e.process({Key::Backspace,{}});check(!e.active(),"empty sentence closes");
     e.process({Key::Undo,{}});check(e.active()&&e.draft.text==u"Keep","undo restores editor draft");
+    e.reset();e.draft.insert(u"原文");auto waiting=e.process({Key::Tab,{}});check(!waiting.commit&&e.draft.text==u"原文","Tab preserves source while translation is unavailable");
+    e.translation=u"Source";auto translated=e.process({Key::Tab,{}});check(translated.commit&&e.draft.text==u"Source","Tab inserts ready translation");
+    d.clear();d.insert(u"abc\ndef\ngh");d.home(false);d.move(1,false);d.vertical(1,true);check(d.caret==5&&d.anchor==1,"vertical selection preserves column");
+    e.reset();e.useCandidates=false;e.process({Key::Text,u"bonjour"});check(e.draft.text==u"bonjour"&&!e.pending(),"layout language bypasses pinyin");
+    e.reset();e.useCandidates=true;e.process({Key::Text,u"!",true});check(e.draft.text==u"！","Chinese shifted punctuation");
     std::cout<<checks<<" editor checks passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -41,12 +41,21 @@ int wmain(){
             if(!eat)throw std::runtime_error("key was not accepted");
             verify(keys->KeyDown(vk,flags,&eat),"key down");pump();
         };
-        auto shiftDown=[&]{keyboard[VK_SHIFT]=0x80;key(VK_SHIFT);};
+        auto hostKey=[&](WPARAM vk){
+            SetKeyboardState(keyboard);BOOL eat=TRUE;
+            LPARAM flags=(static_cast<LPARAM>(MapVirtualKeyW(static_cast<UINT>(vk),MAPVK_VK_TO_VSC))<<16)|1;
+            verify(keys->TestKeyDown(vk,flags,&eat),"test native key");
+            if(eat)throw std::runtime_error("SaySpan claimed a host key at the test phase");
+            MSG message{};message.hwnd=edit;message.message=WM_KEYDOWN;message.wParam=vk;message.lParam=flags;
+            TranslateMessage(&message);DispatchMessageW(&message);pump();
+        };
+        auto shiftDown=[&]{keyboard[VK_SHIFT]=0x80;hostKey(VK_SHIFT);};
         auto shiftUp=[&]{
             keyboard[VK_SHIFT]=0;SetKeyboardState(keyboard);BOOL eat=FALSE;
             verify(keys->TestKeyUp(VK_SHIFT,0,&eat),"test Shift release");
-            if(!eat)throw std::runtime_error("Shift release was not observed");
-            verify(keys->KeyUp(VK_SHIFT,0,&eat),"Shift release");pump();
+            if(eat)verify(keys->KeyUp(VK_SHIFT,0,&eat),"Shift release");
+            else SendMessageW(edit,WM_KEYUP,VK_SHIFT,0);
+            pump();
         };
         auto directEnglish=[&]{SetKeyboardState(keyboard);BOOL eat=TRUE;keys->TestKeyDown('H',0,&eat);return !eat;};
         if(!directEnglish())throw std::runtime_error("initial mode is not direct English");
@@ -63,7 +72,10 @@ int wmain(){
         keyboard[VK_CAPITAL]=0;
         shiftDown();
         // A Shift+letter chord must pass through and must not toggle the language.
-        key('A');shiftUp();
+        GetWindowTextW(edit,output,256);std::wstring before=output;
+        hostKey('A');hostKey('B');hostKey('C');hostKey('1');shiftUp();
+        GetWindowTextW(edit,output,256);
+        if(std::wstring(output)!=before+L"ABC!")throw std::runtime_error("Shift letters/punctuation did not reach the host as ABC!");
         if(!directEnglish())throw std::runtime_error("Shift letter chord changed the language");
         shiftDown();shiftUp();key('N');key('I');key('H');key('A');key('O');key(VK_SPACE);
         shiftDown();key(VK_LEFT);shiftUp();key(VK_BACK);key(VK_RETURN);

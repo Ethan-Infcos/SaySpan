@@ -34,3 +34,7 @@ __pycache__/
 *.userdb.kct.snapshot
 user.yaml
 installation.yaml
+
+# .NET build output
+/apps/windows/companion/**/bin/
+/apps/windows/companion/**/obj/

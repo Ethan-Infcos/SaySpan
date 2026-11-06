@@ -1,0 +1,14 @@
+__include: sayspan.schema:/
+schema:
+  schema_id: sayspan_traditional
+  name: SaySpan Traditional Pinyin
+  version: '0.2'
+switches:
+  - name: traditional
+    reset: 1
+engine:
+  filters: [simplifier, uniquifier]
+simplifier:
+  option_name: traditional
+  opencc_config: s2t.json
+  tips: none

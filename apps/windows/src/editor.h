@@ -25,6 +25,7 @@ public:
     virtual std::u16string literal() const = 0;
     virtual void confirm() = 0;
     virtual void clear() = 0;
+    virtual void expand(bool, size_t) {}
 };
 class Draft {
 public:
@@ -38,6 +39,7 @@ public:
     void insert(const std::u16string& value);
     void erase(bool backward);
     void move(int direction, bool extend);
+    void vertical(int direction, bool extend);
     void home(bool extend);
     void finish(bool extend);
     void selectAll() { anchor = 0; caret = text.size(); }
@@ -56,6 +58,11 @@ class Editor {
 public:
     explicit Editor(Pinyin& engine) : engine(engine) {}
     Draft draft;
+    bool expanded = false, useCandidates = true;
+    size_t columns = 5;
+    std::u16string translation;
+    std::u16string translationStatus;
+    std::wstring language = L"zh";
     bool pending() const { return !engine.state().spelling.empty(); }
     bool active() const { return !draft.text.empty() || pending(); }
     std::u16string marked() const;
@@ -64,7 +71,7 @@ public:
     Result process(const Input& input);
     void choose(size_t index);
     void resolve(bool literal);
-    void reset() { draft.clear(); engine.clear(); }
+    void reset() { draft.clear(); engine.clear(); expanded=false; translation.clear(); translationStatus.clear(); }
 private:
     Pinyin& engine;
     void drain();

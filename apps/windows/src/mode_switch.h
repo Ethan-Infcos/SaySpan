@@ -13,8 +13,11 @@ public:
         pressed = true; chord = modified; started = time;
     }
     void otherKey() { if(pressed) chord = true; }
+    bool isTap(uint64_t time) const {
+        return pressed && !chord && time >= started && time-started <= 500;
+    }
     bool up(uint64_t time) {
-        bool tap = pressed && !chord && time >= started && time-started <= 500;
+        bool tap = isTap(time);
         pressed = false; chord = false; return tap;
     }
     void cancelPress() { pressed = chord = false; }

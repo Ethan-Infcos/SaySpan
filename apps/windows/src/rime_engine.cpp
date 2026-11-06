@@ -1,4 +1,5 @@
 #include "rime_engine.h"
+#include "preferences.h"
 #include <rime_api.h>
 #include <shlobj.h>
 #include <mutex>
@@ -34,7 +35,7 @@ std::u16string fromUtf8(const char* s) {
     MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,s,-1,result.data(),size);
     result.pop_back(); return utf16(result);
 }
-bool ChineseUI() { return PRIMARYLANGID(GetUserDefaultUILanguage())==LANG_CHINESE; }
+bool ChineseUI() { auto language=Preference(L"InterfaceLanguage",L"auto"); return language==L"zh" || (language==L"auto" && PRIMARYLANGID(GetUserDefaultUILanguage())==LANG_CHINESE); }
 bool RimeInitialized() { return api!=nullptr; }
 bool InitializeRime(const std::filesystem::path& data,const std::filesystem::path& user,bool deploy) {
     std::lock_guard lock(mutex);
@@ -55,12 +56,14 @@ bool InitializeRime(const std::filesystem::path& data,const std::filesystem::pat
     api->setup(&traits); api->initialize(&traits);
     if (deploy) {
         api->deployer_initialize(&traits);
-        return api->deploy_config_file("default.yaml","config_version") &&
-               api->deploy_schema(utf8((data/L"sayspan.schema.yaml").wstring()).c_str());
+        if(!api->deploy_config_file("default.yaml","config_version"))return false;
+        for(const wchar_t* schema : {L"sayspan.schema.yaml",L"sayspan_traditional.schema.yaml",L"vokira_japanese_kana.schema.yaml",L"vokira_japanese_static.schema.yaml"})
+            if(!api->deploy_schema(utf8((data/schema).wstring()).c_str()))return false;
+        return true;
     }
     return true;
 }
-RimeEngine::RimeEngine() {
+RimeEngine::RimeEngine(const std::wstring& value):language(value) {
     std::lock_guard lock(mutex);
     if (!api) {
         PWSTR local=nullptr;
@@ -70,36 +73,66 @@ RimeEngine::RimeEngine() {
         if (!InitializeRime(ModuleFolder()/L"data",user,false)) throw std::runtime_error("Rime initialization failed");
     }
     session=api->create_session();
-    if (!session || !api->select_schema(session,"sayspan")) {
+    if (!session || !api->select_schema(session,language==L"ja"?"vokira_japanese_static":language==L"zh-Hant"?"sayspan_traditional":"sayspan")) {
         if (session) api->destroy_session(session);
         session=0; throw std::runtime_error("Pinyin schema is unavailable");
     }
 }
 RimeEngine::~RimeEngine() { std::lock_guard lock(mutex); if(session) api->destroy_session(session); }
-CandidateState RimeEngine::state() const {
-    std::lock_guard lock(mutex);
-    CandidateState result;
-    RIME_STRUCT(RimeContext,context);
-    if (api->get_context(session,&context)) {
-        result.spelling=fromUtf8(context.composition.preedit);
-        result.highlighted=static_cast<size_t>(std::max(0,context.menu.highlighted_candidate_index));
-        result.previous=context.menu.page_no>0; result.next=!context.menu.is_last_page;
-        for (int i=0;i<context.menu.num_candidates;++i) result.candidates.push_back(fromUtf8(context.menu.candidates[i].text));
-        api->free_context(&context);
+void RimeEngine::refresh() const {
+    if(!dirty)return; dirty=false;pool.clear();
+    RimeCandidateListIterator iterator{};
+    if(api->candidate_list_begin(session,&iterator)) {
+        while(pool.size()<200 && api->candidate_list_next(&iterator)) pool.push_back({static_cast<size_t>(iterator.index),fromUtf8(iterator.candidate.text)});
+        api->candidate_list_end(&iterator);
     }
+    if(!PreferenceNumber(L"Learning",1))return;
+    auto input=fromUtf8(api->get_input(session));
+    if(input.empty() || input.size()>128)return;
+    auto path=L"Software\\SaySpan\\Learning\\"+language+L"\\"+wide(input);
+    HKEY key=nullptr; if(RegOpenKeyExW(HKEY_CURRENT_USER,path.c_str(),0,KEY_READ,&key)!=ERROR_SUCCESS)return;
+    std::vector<DWORD> scores(pool.size());
+    for(size_t i=0;i<pool.size();++i) {DWORD size=sizeof(DWORD);RegGetValueW(key,nullptr,wide(pool[i].second).c_str(),RRF_RT_REG_DWORD,nullptr,&scores[i],&size);}
+    std::vector<size_t> order(pool.size()); for(size_t i=0;i<order.size();++i)order[i]=i;
+    std::stable_sort(order.begin(),order.end(),[&](size_t a,size_t b){return scores[a]>scores[b];});
+    auto original=pool;for(size_t i=0;i<order.size();++i)pool[i]=original[order[i]];
+    RegCloseKey(key);
+}
+CandidateState RimeEngine::state() const {
+    std::lock_guard lock(mutex);refresh();
+    CandidateState result;RIME_STRUCT(RimeContext,context);
+    if(api->get_context(session,&context)) {result.spelling=fromUtf8(context.composition.preedit);api->free_context(&context);}
+    result.highlighted=highlighted;result.previous=pageStart>0;result.next=pageStart+pageSize<pool.size();
+    for(size_t i=pageStart;i<std::min(pool.size(),pageStart+pageSize);++i)result.candidates.push_back(pool[i].second);
     return result;
 }
-void RimeEngine::type(char letter) { std::lock_guard lock(mutex); api->process_key(session,letter,0); }
-void RimeEngine::backspace() { std::lock_guard lock(mutex); api->process_key(session,0xff08,0); }
+void RimeEngine::type(char letter) {std::lock_guard lock(mutex);api->process_key(session,letter,0);changed();}
+void RimeEngine::backspace() {std::lock_guard lock(mutex);api->process_key(session,0xff08,0);changed();}
+void RimeEngine::remember(const std::u16string& candidate) {
+    if(!PreferenceNumber(L"Learning",1))return;
+    auto input=fromUtf8(api->get_input(session));if(input.empty() || input.size()>128)return;
+    auto path=L"Software\\SaySpan\\Learning\\"+language+L"\\"+wide(input);
+    HKEY key=nullptr;if(RegCreateKeyExW(HKEY_CURRENT_USER,path.c_str(),0,nullptr,0,KEY_READ|KEY_WRITE,nullptr,&key,nullptr)!=ERROR_SUCCESS)return;
+    DWORD score=0,size=sizeof(score);auto name=wide(candidate);
+    RegGetValueW(key,nullptr,name.c_str(),RRF_RT_REG_DWORD,nullptr,&score,&size);score=std::min<DWORD>(score+1,1000000);
+    RegSetValueExW(key,name.c_str(),0,REG_DWORD,reinterpret_cast<BYTE*>(&score),sizeof(score));RegCloseKey(key);
+}
 void RimeEngine::choose(size_t index) {
-    std::lock_guard lock(mutex);
-    if(index<state().candidates.size()) api->select_candidate_on_current_page(session,index);
+    std::lock_guard lock(mutex);refresh();
+    if(index<pageSize && pageStart+index<pool.size()) {auto candidate=pool[pageStart+index];remember(candidate.second);api->select_candidate(session,candidate.first);changed();}
 }
 void RimeEngine::move(int delta) {
-    std::lock_guard lock(mutex);
-    api->process_key(session,delta<0?0xff52:0xff54,0);
+    std::lock_guard lock(mutex);refresh(); if(pool.empty())return;
+    auto position=std::clamp(static_cast<long long>(pageStart+highlighted)+delta,0LL,static_cast<long long>(pool.size()-1));
+    pageStart=static_cast<size_t>(position)/pageSize*pageSize;highlighted=static_cast<size_t>(position)%pageSize;
 }
-void RimeEngine::page(bool backward) { std::lock_guard lock(mutex); api->change_page(session,backward); }
+void RimeEngine::page(bool backward) {
+    std::lock_guard lock(mutex);refresh();
+    if(backward)pageStart=pageStart>=pageSize?pageStart-pageSize:0;
+    else if(pageStart+pageSize<pool.size())pageStart+=pageSize;
+    highlighted=0;
+}
+void RimeEngine::expand(bool expanded,size_t columns) {std::lock_guard lock(mutex);auto position=pageStart+highlighted;pageSize=std::clamp<size_t>(columns,3,9)*(expanded?3:1);pageStart=position/pageSize*pageSize;highlighted=position%pageSize;}
 std::u16string RimeEngine::takeCommit() {
     std::lock_guard lock(mutex);
     RIME_STRUCT(RimeCommit,commit); std::u16string result;
@@ -116,6 +149,6 @@ std::u16string RimeEngine::literal() const {
     }
     result.erase(std::remove(result.begin(),result.end(),u'\''),result.end()); return result;
 }
-void RimeEngine::confirm() { std::lock_guard lock(mutex); api->commit_composition(session); }
-void RimeEngine::clear() { std::lock_guard lock(mutex); api->clear_composition(session); }
+void RimeEngine::confirm() { std::lock_guard lock(mutex); if(!state().candidates.empty())choose(highlighted); api->commit_composition(session);changed(); }
+void RimeEngine::clear() { std::lock_guard lock(mutex); api->clear_composition(session);changed(); }
 }

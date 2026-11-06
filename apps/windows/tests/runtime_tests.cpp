@@ -22,6 +22,15 @@ int wmain(int argc,wchar_t** argv){
         if(!outcome.commit||editor.draft.text!=u"你好")throw std::runtime_error("Language switch did not confirm source");
         editor.reset();engine.type('s');auto first=engine.state();engine.page(false);auto second=engine.state();
         if(first.candidates==second.candidates)throw std::runtime_error("candidate paging failed");
+        engine.clear();engine.expand(true,5);engine.type('s');auto expanded=engine.state();
+        if(expanded.candidates.size()!=15)throw std::runtime_error("expanded candidate grid does not contain 3 rows of 5");
+        RimeEngine japanese(L"ja");for(char c:std::string("nihon"))japanese.type(c);
+        auto ja=japanese.state();if(ja.candidates.empty())throw std::runtime_error("Japanese candidates unavailable");
+        bool kana=false;for(const auto& value:ja.candidates)for(auto c:value)kana=kana || c>127;
+        if(!kana)throw std::runtime_error("Japanese engine returned only Latin letters");
+        RimeEngine traditional(L"zh-Hant");for(char c:std::string("hanyu"))traditional.type(c);
+        auto tr=traditional.state();bool converted=false;for(const auto& value:tr.candidates)converted=converted || value.find(u'漢')!=std::u16string::npos;
+        if(!converted)throw std::runtime_error("Traditional Chinese conversion unavailable");
         std::cout<<"Native Rime composition checks passed\n";return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

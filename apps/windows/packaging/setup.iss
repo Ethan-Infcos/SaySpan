@@ -10,8 +10,8 @@
 [Setup]
 AppId=SaySpan.Windows.Preview.{#Arch}
 AppName={#Brand} (Preview)
-AppVersion=0.1.0
-AppVerName={#Brand} Windows Preview 0.1.0
+AppVersion=0.2.0
+AppVerName={#Brand} Windows Preview 0.2.0
 AppPublisher=SaySpan contributors
 AppPublisherURL=https://github.com/Ethan-Infcos/SaySpan
 DefaultDirName={autopf}\SaySpan Preview
@@ -31,7 +31,7 @@ DisableDirPage=yes
 LicenseFile={#Payload}\LICENSE
 InfoAfterFile={#Payload}\README.txt
 OutputDir={#Output}
-OutputBaseFilename=SaySpan-0.1.0-preview-windows-{#Arch}-setup
+OutputBaseFilename=SaySpan-0.2.0-preview-windows-{#Arch}-setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -42,7 +42,11 @@ UninstallDisplayIcon={app}\SaySpanTip.dll
 [Files]
 Source: "{#Payload}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs restartreplace uninsrestartdelete
 [Icons]
+Name: "{group}\{#Brand} Settings"; Filename: "{app}\companion\SaySpan.exe"; Parameters: "--settings"
+Name: "{commonstartup}\{#Brand}"; Filename: "{app}\companion\SaySpan.exe"; Parameters: "--background"
 Name: "{group}\SaySpan — Read me"; Filename: "{app}\README.txt"
+[Run]
+Filename: "{app}\companion\SaySpan.exe"; Parameters: "--settings"; Description: "Open {#Brand} Settings"; Flags: nowait postinstall skipifsilent runasoriginaluser
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);
 var Code: Integer;

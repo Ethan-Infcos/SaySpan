@@ -25,12 +25,12 @@ def main():
         raise RuntimeError('Install Inno Setup 6.6 or later to package the preview')
     output = REPO / 'dist/windows' / args.arch
     output.mkdir(parents=True, exist_ok=True)
-    allowed = {'SaySpanTip.dll', 'SaySpanRegister.exe', 'rime.dll', 'data', 'licenses', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'README.txt'}
+    allowed = {'SaySpanTip.dll', 'SaySpanRegister.exe', 'rime.dll', 'data', 'companion', 'licenses', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'README.txt'}
     if {p.name for p in payload.iterdir()} != allowed:
         raise RuntimeError('Unexpected package payload contents')
     brand = json.loads((REPO / 'apps/macos/Resources/Branding.json').read_text())['name']
     run(compiler, f'/DBrand={brand}', f'/DPayload={payload}', f'/DArch={args.arch}', f'/DOutput={output}', ROOT / 'packaging/setup.iss')
-    installer = next(output.glob('*-setup.exe'))
+    installer = output / f'{brand}-0.2.0-preview-windows-{args.arch}-setup.exe'
     # Verify the actual installed copy and uninstall it on an isolated CI runner.
     target = work / 'installer-test'
     run(installer, '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', f'/DIR={target}', f'/LOG={work / "install.log"}')
@@ -46,7 +46,7 @@ def main():
     (output / 'SHA256SUMS.txt').write_text(f'{digest}  {installer.name}\n')
     (output / 'BUILD.json').write_text(json.dumps({
         'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
-        'architecture': args.arch, 'version': '0.1.0-preview',
+        'architecture': args.arch, 'version': '0.2.0-preview',
         'signing': 'Unsigned development preview',
         'checks': ['editor', 'native Rime', 'COM registration', 'installer round-trip']
     }, indent=2) + '\n')
