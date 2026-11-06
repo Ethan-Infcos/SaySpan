@@ -2,6 +2,7 @@
 #include "panel.h"
 #include "rime_engine.h"
 #include <functional>
+#include <initguid.h>
 #include <inputscope.h>
 #include <memory>
 #include <new>
@@ -124,7 +125,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
                     InputScope* scopes=nullptr; UINT count=0;
                     if(SUCCEEDED(scope->GetInputScopes(&scopes,&count))) {
                         bool password=false;
-                        for(UINT i=0;i<count;++i) password=password || scopes[i]==IS_PASSWORD;
+                        for(UINT i=0;i<count;++i) password=password || scopes[i]==IS_PASSWORD || scopes[i]==IS_NUMERIC_PASSWORD;
                         CoTaskMemFree(scopes);
                         if(password) { VariantClear(&value); return E_ACCESSDENIED; }
                     }
