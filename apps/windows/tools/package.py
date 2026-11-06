@@ -48,7 +48,7 @@ def main():
         'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
         'architecture': args.arch, 'version': '0.2.0-preview',
         'signing': 'Unsigned development preview',
-        'checks': ['editor', 'native Rime', 'COM registration', 'installer round-trip']
+        'checks': ['editor', 'native Rime Chinese/Japanese', 'RichEdit TSF and Shift chords', 'translation provider and IPC', 'companion settings and credentials', 'selection accessibility', 'TSF companion HTTP insertion', 'COM registration', 'installer round-trip']
     }, indent=2) + '\n')
 
 

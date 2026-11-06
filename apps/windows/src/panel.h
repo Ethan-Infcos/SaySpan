@@ -20,7 +20,7 @@ private:
     RECT lastCaret{};
     std::function<void()> tick;
     std::vector<POINT> positions;
-    int sourceTop=38, sourceHeight=32, translationTop=0, translationHeight=0, sourceScroll=0;
+    int sourceTop=38, sourceHeight=32, translationTop=0, translationHeight=0, sourceScroll=0, translationScroll=0, translationContentHeight=0;
     bool ensureWindow();
     CandidateState candidates;
     size_t caretPosition = 0, selectionStart = 0, selectionEnd = 0;

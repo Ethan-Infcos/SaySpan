@@ -51,22 +51,24 @@ sealed class SelectionMonitor : IDisposable
             catch (Exception e) when (e is ElementNotAvailableException or InvalidOperationException or COMException or UnauthorizedAccessException) { Post(Clear); }
         }
     }
-    internal static SelectedText? ReadSelection(Drawing.Point point, IntPtr foreground) {
+    internal static SelectedText? ReadSelection(Drawing.Point point, IntPtr foreground, Action<string>? trace = null) {
         // Hit-test the selected content first; focused controls may still be an unrelated editor.
         var hit = AutomationElement.FromPoint(new System.Windows.Point(point.X, point.Y));
         foreach (var start in new[] { hit, AutomationElement.FocusedElement }) {
             var node = start;
             for (int depth = 0; node != null && depth < 9; depth++, node = TreeWalker.ControlViewWalker.GetParent(node)) {
                 var properties = node.Current;
+                trace?.Invoke($"Node {properties.ClassName} pid={properties.ProcessId} type={properties.ControlType.ProgrammaticName} password={properties.IsPassword}");
                 if (properties.ProcessId == Environment.ProcessId || properties.IsPassword) break;
                 GetWindowThreadProcessId(foreground, out uint pid);
                 if (properties.ProcessId != pid) break;
-                if (!node.TryGetCurrentPattern(TextPattern.Pattern, out var value)) continue;
+                if (!node.TryGetCurrentPattern(TextPattern.Pattern, out var value)) {trace?.Invoke("No TextPattern");continue;}
                 var pattern = (TextPattern)value;
                 foreach (var range in pattern.GetSelection()) {
                     var readOnly = range.GetAttributeValue(TextPattern.IsReadOnlyAttribute);
+                    trace?.Invoke($"ReadOnly={readOnly}");
                     if (readOnly is not true) continue;
-                    var text = range.GetText(8193);
+                    var text = range.GetText(8193);trace?.Invoke($"Selected length={text.Length}");
                     if (string.IsNullOrWhiteSpace(text) || text.Length > 8192) continue;
                     // Use the first selection rectangle once; never chase later mouse movement.
                     var rectangles = range.GetBoundingRectangles();

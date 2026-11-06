@@ -24,7 +24,7 @@ the client application's process.
 ## Build on Windows
 
 Install Visual Studio 2022/2026 C++ build tools, the matching x64 or ARM64 tools,
-Windows SDK, CMake 3.24+, Python 3.12+, .NET 8 SDK, and Inno Setup 6.6+. Run from the repository
+Windows SDK, CMake 3.24+, Python 3.12+, .NET 10 SDK, and Inno Setup 6.6+. Run from the repository
 root in a developer PowerShell on the target architecture:
 
 ```powershell

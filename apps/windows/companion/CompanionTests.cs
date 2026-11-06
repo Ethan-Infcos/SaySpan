@@ -29,8 +29,9 @@ static class CompanionTests
                     try {
                         for(int attempt=0;attempt<50;attempt++){fixture.Refresh();if(fixture.MainWindowHandle!=IntPtr.Zero)break;System.Threading.Thread.Sleep(100);}
                         System.Threading.Thread.Sleep(300);fixture.Refresh();
-                        var selected=SelectionMonitor.ReadSelection(new System.Drawing.Point(140,150),fixture.MainWindowHandle);
-                        if(kind=="readonly" && selected?.Text!="Line one")throw new Exception("UI Automation could not read the read-only fixture selection.");
+                        var trace=new List<string>();
+                        var selected=SelectionMonitor.ReadSelection(new System.Drawing.Point(140,150),fixture.MainWindowHandle,trace.Add);
+                        if(kind=="readonly" && selected?.Text!="Line one")throw new Exception("UI Automation could not read the read-only fixture selection. " + string.Join("; ",trace));
                         if(kind!="readonly" && selected!=null)throw new Exception("Selection translation accepted an editable or password field.");
                     } finally {fixture.Kill();fixture.WaitForExit();}
                 }

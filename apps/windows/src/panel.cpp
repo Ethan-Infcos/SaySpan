@@ -32,7 +32,9 @@ void Panel::layout(HDC dc,int maxWidth) {
     if(!translation.empty() || !status.empty()) {
         RECT measure{0,0,width-px(28),0};auto& text=translation.empty()?status:translation;
         DrawTextW(dc,text.c_str(),-1,&measure,DT_CALCRECT|DT_WORDBREAK|DT_NOPREFIX|DT_EXPANDTABS);
-        translationHeight=std::clamp(static_cast<int>(measure.bottom)+px(24),px(48),px(180));
+        translationContentHeight=static_cast<int>(measure.bottom);
+        translationHeight=std::clamp(translationContentHeight+px(24),px(48),px(180));
+        translationScroll=std::clamp(translationScroll,0,std::max(0,translationContentHeight-translationHeight+px(24)));
     }
     boxes.clear();y=translationTop+translationHeight;
     size_t count=std::max<size_t>(1,columns);
@@ -54,7 +56,7 @@ void Panel::layout(HDC dc,int maxWidth) {
 }
 void Panel::show(const Editor& editor,RECT caret,std::function<void(size_t)> choose) {
     if(!editor.active()){hide();return;}
-    sentence=wide(editor.marked());candidates=editor.candidates();translation=wide(editor.translation);status=wide(editor.translationStatus);language=editor.language;columns=editor.columns;
+    sentence=wide(editor.marked());candidates=editor.candidates();if(translation!=wide(editor.translation))translationScroll=0;translation=wide(editor.translation);status=wide(editor.translationStatus);language=editor.language;columns=editor.columns;
     caretPosition=editor.markedCaret();selectionStart=editor.pending()?caretPosition:editor.draft.start();selectionEnd=editor.pending()?caretPosition:editor.draft.end();
     lastCaret=caret;select=std::move(choose);if(!ensureWindow())return;
     MONITORINFO monitor{sizeof(monitor)};GetMonitorInfoW(MonitorFromRect(&caret,MONITOR_DEFAULTTONEAREST),&monitor);
@@ -92,7 +94,8 @@ void Panel::paint() {
     RestoreDC(dc,saved);
     if(translationHeight) {
         RECT tag{px(14),translationTop,width-px(14),translationTop+px(22)};SetTextColor(dc,RGB(100,107,120));DrawTextW(dc,ChineseUI()?L"译文":L"Translation",-1,&tag,DT_SINGLELINE);
-        RECT body{px(14),translationTop+px(24),width-px(14),translationTop+translationHeight};SetTextColor(dc,translation.empty()?RGB(100,107,120):RGB(24,30,44));auto& text=translation.empty()?status:translation;DrawTextW(dc,text.c_str(),-1,&body,DT_WORDBREAK|DT_NOPREFIX|DT_EXPANDTABS);
+        int translationClip=SaveDC(dc);IntersectClipRect(dc,px(14),translationTop+px(24),width-px(14),translationTop+translationHeight);
+        RECT body{px(14),translationTop+px(24)-translationScroll,width-px(14),translationTop+px(24)+translationContentHeight-translationScroll};SetTextColor(dc,translation.empty()?RGB(100,107,120):RGB(24,30,44));auto& text=translation.empty()?status:translation;DrawTextW(dc,text.c_str(),-1,&body,DT_WORDBREAK|DT_NOPREFIX|DT_EXPANDTABS);RestoreDC(dc,translationClip);
     }
     for(size_t i=0;i<boxes.size();++i) {
         if(i==candidates.highlighted){auto b=CreateSolidBrush(RGB(215,230,255));FillRect(dc,&boxes[i],b);DeleteObject(b);}
@@ -105,6 +108,7 @@ LRESULT CALLBACK Panel::procedure(HWND window,UINT message,WPARAM wParam,LPARAM 
     auto self=reinterpret_cast<Panel*>(GetWindowLongPtrW(window,GWLP_USERDATA));if(message==WM_NCCREATE){self=static_cast<Panel*>(reinterpret_cast<CREATESTRUCTW*>(lParam)->lpCreateParams);SetWindowLongPtrW(window,GWLP_USERDATA,reinterpret_cast<LONG_PTR>(self));}
     if(self) {
         if(message==WM_TIMER){if(self->tick)self->tick();return 0;}
+        if(message==WM_MOUSEWHEEL){self->translationScroll=std::clamp(self->translationScroll-GET_WHEEL_DELTA_WPARAM(wParam)/WHEEL_DELTA*self->px(52),0,std::max(0,self->translationContentHeight-self->translationHeight+self->px(24)));InvalidateRect(window,nullptr,FALSE);return 0;}
         if(message==WM_MOUSEACTIVATE)return MA_NOACTIVATE;
         if(message==WM_PAINT){self->paint();return 0;}
         if(message==WM_ERASEBKGND)return 1;
