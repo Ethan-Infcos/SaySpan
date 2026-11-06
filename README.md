@@ -38,7 +38,9 @@ availability. Native Korean composition is not implemented. See the
 ## Status and installation
 
 This is an early **macOS / Apple Silicon** project. The portable build targets
-**macOS 15 and later**; Intel, Windows, and Linux input methods are not implemented.
+**macOS 15 and later**; Intel macOS and Linux are not supported. A separate
+[Windows x64/ARM64 preview](apps/windows/README.md) implements English direct typing
+and Chinese pinyin sentence composition; translation is not yet ported.
 The source includes the bilingual website and development installer tooling.
 
 There is currently **no signed, notarized public installer**. The included packaging
@@ -98,7 +100,7 @@ and the [privacy guide](https://sayspan.com/en/docs/privacy/).
 | Platform | Status | Source |
 | --- | --- | --- |
 | macOS, Apple Silicon | Development preview; portable target macOS 15+ | `apps/macos/` |
-| Windows | Planned; no implementation yet | Future `apps/windows/` |
+| Windows, x64 / ARM64 | Input/composition preview; desktop testing required | `apps/windows/` |
 | Linux | Planned; no implementation yet | Future `apps/linux/` |
 
 See [platform organization](docs/platforms.md) for boundaries and shared contracts.

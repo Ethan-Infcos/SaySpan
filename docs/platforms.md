@@ -1,20 +1,22 @@
 # Platform organization
 
-SaySpan is a multi-platform repository with one implemented platform today.
+SaySpan is a multi-platform repository with a macOS application and a Windows input preview.
 
 ```text
 apps/
   macos/          Native runtime, engines, resources, tests, and installer
+  windows/        Native TSF input/composition preview for x64 and ARM64
 docs/
   development/    Platform-specific contributor instructions
 website/          Bilingual product site and user documentation
 .github/          Repository automation
 ```
 
-Windows and Linux are planned, not implemented. Future native applications belong
-in `apps/windows/` and `apps/linux/`. Mobile input methods would also have their own
-platform directories if they are pursued. There are no placeholder binaries or
-claims of cross-platform support.
+Windows currently implements English direct typing and Chinese pinyin sentence
+composition. Translation and other macOS features are not yet ported; see the
+[Windows preview guide](../apps/windows/README.md). Linux remains planned, with any
+future implementation under `apps/linux/`. Mobile input methods would have their
+own platform directories if pursued.
 
 ## What each platform owns
 
@@ -62,5 +64,5 @@ Engine libraries can remain third-party dependencies with platform adapters.
 
 Each platform owns its build matrix and release artifacts. Platform signing material
 never belongs in source control. Website deployment remains separate from app releases;
-the public website source must build without production server access. Current CI
-validates the website and macOS source; it does not imply future-platform readiness.
+the public website source must build without production server access. Separate CI validates the website/macOS source and native Windows x64/ARM64
+preview builds. Native build and integration checks do not replace desktop testing.

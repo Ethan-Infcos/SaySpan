@@ -91,6 +91,7 @@ Result Editor::process(const Input& input) {
         else draft.insert(u" ");
         return {};
     case Key::Text:
+        if (marked().size() >= 8192 && !draft.selected()) return {};
         if (input.text.size() == 1) {
             char16_t c = input.text.front();
             if (!input.shift && c >= u'1' && c <= u'5' && pending()) {

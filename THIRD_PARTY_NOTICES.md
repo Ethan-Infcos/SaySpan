@@ -48,3 +48,12 @@ use the packaging pipeline to collect the linked libraries and their notices.
 
 Ollama, hosted translation services, and their model weights are not included.
 Their terms and licenses are separate from SaySpan's license.
+
+## Windows preview
+
+The Windows preview builds librime and its dependencies from the same pinned source
+manifest, with logging disabled and dependencies linked statically into `rime.dll`.
+It uses the existing Apache-licensed `pinyin_simp` dictionary and ships its license,
+the dictionary header, and dependency notices under `licenses/`. Windows-specific
+frontend code is original SaySpan code; it does not incorporate the GPL-licensed
+Weasel frontend. No model weights or personal dictionaries are bundled.

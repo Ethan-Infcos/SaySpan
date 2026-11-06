@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-import urllib.request
 from dependencies import ROOT, REPO, run
 
 

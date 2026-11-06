@@ -2,7 +2,9 @@
 
 ## Scope and structure
 
-- `apps/macos/` is the implemented native application. Build scripts, resources,
+- `apps/windows/` is the native TSF input preview; see `docs/development/windows.md`.
+  Registration and installer tests must run in isolated Windows CI sessions.
+- `apps/macos/` is the macOS native application. Build scripts, resources,
   dependencies, tests, and installer templates stay with that platform.
 - `website/` is portable public website source. Never add production infrastructure
   credentials or private deployment state here.
