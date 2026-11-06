@@ -1,5 +1,5 @@
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 namespace SaySpan.Core;
@@ -91,7 +91,7 @@ public sealed class TranslationProvider(HttpClient client)
         if (text.Length is 0 or > 8192) throw new ArgumentException("Select between 1 and 8192 characters.");
         var body = Body(p, text, fallback, out var target);
         if (string.IsNullOrWhiteSpace((string)body["model"])) throw new ArgumentException("Choose a model in Settings → Models.");
-        using var request = Request(p, key, false); request.Content = JsonContent.Create(body);
+        using var request = Request(p, key, false); request.Content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
         using var json = await Read(response, token);
         string? result = p.Provider == "online" ? json.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() : json.RootElement.GetProperty("message").GetProperty("content").GetString();

@@ -5,15 +5,15 @@ SaySpan is a multi-platform repository with a macOS application and a Windows in
 ```text
 apps/
   macos/          Native runtime, engines, resources, tests, and installer
-  windows/        Native TSF input/composition preview for x64 (ARM64 deferred)
+  windows/        Native TSF input and translation companion for x64 (ARM64 deferred)
 docs/
   development/    Platform-specific contributor instructions
 website/          Bilingual product site and user documentation
 .github/          Repository automation
 ```
 
-Windows currently implements English direct typing and Chinese pinyin sentence
-composition. Translation and other macOS features are not yet ported; see the
+Windows provides native input/composition, candidate engines, model settings and
+translation through a companion process. See the
 [Windows preview guide](../apps/windows/README.md). Linux remains planned, with any
 future implementation under `apps/linux/`. Mobile input methods would have their
 own platform directories if pursued.

@@ -27,7 +27,8 @@ static class CompanionTests
                 foreach(var kind in new[] {"readonly", "editable", "password"}) {
                     using var fixture=System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(args[1]) { ArgumentList = {"--selection-fixture", kind} })!;
                     try {
-                        fixture.WaitForInputIdle(5000); System.Threading.Thread.Sleep(500);fixture.Refresh();
+                        for(int attempt=0;attempt<50;attempt++){fixture.Refresh();if(fixture.MainWindowHandle!=IntPtr.Zero)break;System.Threading.Thread.Sleep(100);}
+                        System.Threading.Thread.Sleep(300);fixture.Refresh();
                         var selected=SelectionMonitor.ReadSelection(new System.Drawing.Point(140,150),fixture.MainWindowHandle);
                         if(kind=="readonly" && selected?.Text!="Line one")throw new Exception("UI Automation could not read the read-only fixture selection.");
                         if(kind!="readonly" && selected!=null)throw new Exception("Selection translation accepted an editable or password field.");

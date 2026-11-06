@@ -8,7 +8,14 @@ static class Program
 {
     public static readonly string PipeName = "SaySpan.v1." + WindowsIdentity.GetCurrent().User!.Value + "." + System.Diagnostics.Process.GetCurrentProcess().SessionId;
     [STAThread] static void Main(string[] args) {
-        if (args.Contains("--self-test")) { CompanionTests.Run(args); return; }
+        if (args.Contains("--self-test")) {
+            try { CompanionTests.Run(args); }
+            catch(Exception error) {
+                if(Environment.GetEnvironmentVariable("CI")=="true")File.WriteAllText(System.IO.Path.Combine(AppContext.BaseDirectory,"self-test.log"),error.ToString());
+                Environment.ExitCode=1;
+            }
+            return;
+        }
         using var mutex = new Mutex(true, @"Local\" + PipeName, out bool first);
         if (!first) {
             if (!args.Contains("--background")) {

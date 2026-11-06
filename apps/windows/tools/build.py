@@ -52,7 +52,13 @@ def main():
     companion = ROOT / 'companion'
     run('dotnet', 'run', '--project', companion / 'Tests/SaySpan.Core.Tests.csproj', '--configuration', 'Release')
     run('dotnet', 'publish', companion / 'SaySpan.Companion.csproj', '--configuration', 'Release', '--runtime', 'win-x64', '--self-contained', 'true', '-o', payload / 'companion')
-    run(payload / 'companion/SaySpan.exe', '--self-test', binary / 'host_tests.exe')
+    try:
+        run(payload / 'companion/SaySpan.exe', '--self-test', binary / 'host_tests.exe')
+    finally:
+        diagnostic = payload / 'companion/self-test.log'
+        if diagnostic.exists():
+            print(diagnostic.read_text(encoding='utf-8'), flush=True)
+            diagnostic.unlink()
     shutil.copytree(data, payload / 'data')
     run('python', ROOT / 'tools/translation_integration.py', binary, payload)
     shutil.copytree(prefix / 'licenses', payload / 'licenses')
