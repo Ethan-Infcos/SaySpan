@@ -50,7 +50,7 @@ def main():
             build = work / 'build' / name
             print(f'Building {name} ({args.arch})', flush=True)
             run('cmake', '-S', source, '-B', build, '-A', args.arch,
-                '-DCMAKE_POLICY_VERSION_MINIMUM=3.5', '-DCMAKE_BUILD_TYPE=Release',
+                '-DCMAKE_POLICY_VERSION_MINIMUM=3.5', '-DCMAKE_POLICY_DEFAULT_CMP0091=NEW', '-DCMAKE_BUILD_TYPE=Release',
                 '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded', '-DBUILD_SHARED_LIBS=OFF',
                 f'-DCMAKE_PREFIX_PATH={prefix}', f'-DCMAKE_INSTALL_PREFIX={prefix}', *options[name])
             run('cmake', '--build', build, '--config', 'Release', '--parallel', '3')
