@@ -12,6 +12,13 @@ sealed class SelectionMonitor : IDisposable
     [DllImport("user32.dll")] static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll")] static extern bool GetCursorPos(out Drawing.Point point);
     [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint pid);
+    [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(Drawing.Point point);
+    delegate void WinEventCallback(IntPtr hook, uint eventType, IntPtr window, int objectId, int childId, uint threadId, uint time);
+    [DllImport("user32.dll")] static extern IntPtr SetWinEventHook(uint first, uint last, IntPtr module, WinEventCallback callback, uint process, uint thread, uint flags);
+    [DllImport("user32.dll")] static extern bool UnhookWinEvent(IntPtr hook);
+    readonly WinEventCallback selectionEvent;
+    readonly IntPtr eventHook;
+    long pendingSelection;
     readonly Forms.Control dispatcher;
     readonly TranslationProvider provider;
     readonly CancellationToken token;
@@ -23,6 +30,10 @@ sealed class SelectionMonitor : IDisposable
     bool disposed;
     public SelectionMonitor(Forms.Control dispatcher, TranslationProvider provider, CancellationToken token) {
         this.dispatcher = dispatcher; this.provider = provider; this.token = token;
+        // Out-of-context notifications run on this message-loop thread. The callback
+        // only schedules work; it never calls a remote accessibility provider.
+        selectionEvent = (_, _, _, _, _, _, _) => Interlocked.Exchange(ref pendingSelection, Environment.TickCount64 + 350);
+        eventHook = SetWinEventHook(0x8014, 0x8014, IntPtr.Zero, selectionEvent, 0, 0, 2);
         // UI Automation can block in an application provider. Keep it off the UI and IME threads.
         _ = Task.Run(Monitor, token);
     }
@@ -34,6 +45,15 @@ sealed class SelectionMonitor : IDisposable
             try {
                 await Task.Delay(100, token);
                 bool mouseDown = GetAsyncKeyState(1) < 0, shift = GetAsyncKeyState(0x10) < 0;
+                var requested = Interlocked.Exchange(ref pendingSelection, 0);
+                if(requested != 0) {GetCursorPos(out selectedAt);settledAt=requested;}
+                GetCursorPos(out var pointer);
+                GetWindowThreadProcessId(WindowFromPoint(pointer),out uint pointerProcess);
+                // A nonactivating card leaves the source app in the foreground.
+                // Hit-test the pointer too, so its buttons are not dismissed as outside clicks.
+                if(pointerProcess==Environment.ProcessId && (mouseDown || wasMouseDown)) {
+                    wasMouseDown=mouseDown;wasShift=shift;settledAt=0;continue;
+                }
                 var foreground = GetForegroundWindow(); GetWindowThreadProcessId(foreground, out uint process);
                 if (process == Environment.ProcessId) { wasMouseDown = mouseDown; wasShift = shift; continue; }
                 Post(() => { if (currentWindow != IntPtr.Zero && currentWindow != foreground) Clear(); });
@@ -110,7 +130,7 @@ sealed class SelectionMonitor : IDisposable
         } catch (Exception ex) { if (!cancellation.IsCancellationRequested && request == revision && !view.IsDisposed) view.Error(Companion.FriendlyError(ex)); }
     }
     void Clear() { ++revision; translation?.Cancel(); translation?.Dispose(); translation = null; card?.Close(); card = null; current = ""; currentWindow = IntPtr.Zero; }
-    public void Dispose() { disposed = true; Clear(); }
+    public void Dispose() { disposed = true; if(eventHook!=IntPtr.Zero)UnhookWinEvent(eventHook); Clear(); }
 }
 sealed class SelectionCard : Forms.Form
 {
