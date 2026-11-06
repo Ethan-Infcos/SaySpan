@@ -6,17 +6,24 @@ int wmain(int argc,wchar_t** argv) {
     HRESULT hr=CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED); if(FAILED(hr))return 3;
     std::wstring action=argv[1];
     if(action==L"--verify") {
-        ComPtr<ITfInputProcessorProfileMgr> profiles; TF_INPUTPROCESSORPROFILE profile{};
+        ComPtr<ITfTextInputProcessorEx> service;
+        HRESULT server=CoCreateInstance(ServiceId,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&service));
+        std::wcout<<L"CreateService: 0x"<<std::hex<<static_cast<unsigned long>(server)<<L"\n";
+        ComPtr<ITfInputProcessorProfileMgr> profiles;
         hr=CoCreateInstance(CLSID_TF_InputProcessorProfiles,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&profiles));
         if(SUCCEEDED(hr)) {
-            hr=profiles->GetProfile(TF_PROFILETYPE_INPUTPROCESSOR,ProfileLanguage,ServiceId,ProfileId,nullptr,&profile);
-            std::wcout<<L"GetProfile: 0x"<<std::hex<<static_cast<unsigned long>(hr)<<L"\n";
+            ComPtr<IEnumTfInputProcessorProfiles> list;
+            hr=profiles->EnumProfiles(ProfileLanguage,&list);
+            if(SUCCEEDED(hr)) {
+                TF_INPUTPROCESSORPROFILE profile{}; ULONG count=0; bool found=false;
+                while(list->Next(1,&profile,&count)==S_OK && count==1) {
+                    if(profile.clsid==ServiceId && profile.guidProfile==ProfileId) { found=true; break; }
+                }
+                hr=found?S_OK:E_FAIL;
+            }
+            std::wcout<<L"ProfileCatalog: 0x"<<std::hex<<static_cast<unsigned long>(hr)<<L"\n";
         }
-        if(SUCCEEDED(hr)) {
-            ComPtr<ITfTextInputProcessorEx> service;
-            hr=CoCreateInstance(ServiceId,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&service));
-            std::wcout<<L"CreateService: 0x"<<std::hex<<static_cast<unsigned long>(hr)<<L"\n";
-        }
+        if(FAILED(server))hr=server;
     } else if(action==L"--register" || action==L"--unregister") {
         wchar_t path[32768]{}; GetModuleFileNameW(nullptr,path,32768);
         auto dll=std::filesystem::path(path).parent_path()/L"SaySpanTip.dll";

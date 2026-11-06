@@ -3,6 +3,7 @@ import argparse
 import shutil
 from pathlib import Path
 from dependencies import ROOT, REPO, run
+from verify_registration import verify_registration
 
 
 def main():
@@ -28,7 +29,7 @@ def main():
     run(binary / 'runtime_tests.exe', work / 'test-user')
     run(binary / 'SaySpanRegister.exe', '--register')
     try:
-        run(binary / 'SaySpanRegister.exe', '--verify')
+        verify_registration(binary / 'SaySpanRegister.exe')
         run(binary / 'host_tests.exe')
     finally:
         run(binary / 'SaySpanRegister.exe', '--unregister')

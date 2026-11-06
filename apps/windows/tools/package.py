@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 import subprocess
 from dependencies import ROOT, REPO, run
+from verify_registration import verify_registration
 
 
 def main():
@@ -34,7 +35,7 @@ def main():
     target = work / 'installer-test'
     run(installer, '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', f'/DIR={target}', f'/LOG={work / "install.log"}')
     try:
-        run(target / 'SaySpanRegister.exe', '--verify')
+        verify_registration(target / 'SaySpanRegister.exe')
         for name in ('SaySpanTip.dll', 'SaySpanRegister.exe', 'rime.dll'):
             if (target / name).read_bytes() != (payload / name).read_bytes():
                 raise RuntimeError(f'Installed binary differs: {name}')
