@@ -8,10 +8,14 @@ int wmain(int argc,wchar_t** argv) {
     if(action==L"--verify") {
         ComPtr<ITfInputProcessorProfileMgr> profiles; TF_INPUTPROCESSORPROFILE profile{};
         hr=CoCreateInstance(CLSID_TF_InputProcessorProfiles,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&profiles));
-        if(SUCCEEDED(hr))hr=profiles->GetProfile(TF_PROFILETYPE_INPUTPROCESSOR,ProfileLanguage,ServiceId,ProfileId,nullptr,&profile);
+        if(SUCCEEDED(hr)) {
+            hr=profiles->GetProfile(TF_PROFILETYPE_INPUTPROCESSOR,ProfileLanguage,ServiceId,ProfileId,nullptr,&profile);
+            std::wcout<<L"GetProfile: 0x"<<std::hex<<static_cast<unsigned long>(hr)<<L"\n";
+        }
         if(SUCCEEDED(hr)) {
             ComPtr<ITfTextInputProcessorEx> service;
             hr=CoCreateInstance(ServiceId,nullptr,CLSCTX_INPROC_SERVER,IID_PPV_ARGS(&service));
+            std::wcout<<L"CreateService: 0x"<<std::hex<<static_cast<unsigned long>(hr)<<L"\n";
         }
     } else if(action==L"--register" || action==L"--unregister") {
         wchar_t path[32768]{}; GetModuleFileNameW(nullptr,path,32768);
