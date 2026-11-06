@@ -6,6 +6,7 @@ int checks = 0;
 void Check(bool condition, string message) { checks++; if (!condition) throw new Exception(message); }
 var p = new Preferences();
 Check(TranslationProvider.Target(p, "你好", "") == "en", "Chinese to English");
+Check(TranslationProvider.Target(p, "Please meet 李 at the train station tomorrow.", "") == "zh", "A proper name does not change the dominant language");
 Check(TranslationProvider.Target(p, "hello", "") == "zh", "English to Chinese");
 Check(TranslationProvider.Target(p with { SecondLanguage = "ja" }, "こんにちは", "") == "en", "Japanese detection");
 Check(TranslationProvider.Target(p with { FirstLanguage = "fr", SecondLanguage = "de" }, "bonjour", "") == "auto", "Latin pair needs model identification");

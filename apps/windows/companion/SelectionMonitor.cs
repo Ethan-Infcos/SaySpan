@@ -54,7 +54,19 @@ sealed class SelectionMonitor : IDisposable
     internal static SelectedText? ReadSelection(Drawing.Point point, IntPtr foreground, Action<string>? trace = null) {
         // Hit-test the selected content first; focused controls may still be an unrelated editor.
         var hit = AutomationElement.FromPoint(new System.Windows.Point(point.X, point.Y));
-        foreach (var start in new[] { hit, AutomationElement.FocusedElement }) {
+        var starts = new List<AutomationElement?> { hit, AutomationElement.FocusedElement };
+        // Accessibility focus can remain on a terminal/editor even when another
+        // document contains the selection. Search the supplied foreground window
+        // with a bounded walk; never search the entire desktop.
+        var root = AutomationElement.FromHandle(foreground);
+        var queue = new Queue<AutomationElement>(); queue.Enqueue(root);
+        for(int visited=0;queue.Count>0 && visited<128;visited++) {
+            var element=queue.Dequeue();
+            if(element.TryGetCurrentPattern(TextPattern.Pattern,out _))starts.Add(element);
+            var child=TreeWalker.ControlViewWalker.GetFirstChild(element);
+            while(child!=null && queue.Count+visited<128) {queue.Enqueue(child);child=TreeWalker.ControlViewWalker.GetNextSibling(child);}
+        }
+        foreach (var start in starts) {
             var node = start;
             for (int depth = 0; node != null && depth < 9; depth++, node = TreeWalker.ControlViewWalker.GetParent(node)) {
                 var properties = node.Current;

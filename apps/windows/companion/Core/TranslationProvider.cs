@@ -32,13 +32,16 @@ public sealed class TranslationProvider(HttpClient client)
     }
     public static string Target(Preferences p, string text, string fallback)
     {
-        string? detected = text.Any(c => c is >= '\u3040' and <= '\u30ff') ? "ja" :
-            text.Any(c => c is >= '\uac00' and <= '\ud7af') ? "ko" :
-            text.Any(c => c is >= '\u4e00' and <= '\u9fff') ? "zh" :
-            text.Any(c => c is >= '\u0400' and <= '\u04ff') ? "ru" :
-            text.Any(c => c is >= '\u0600' and <= '\u06ff') ? "ar" :
-            text.Any(c => c is >= '\u0900' and <= '\u097f') ? "hi" :
-            text.Any(c => c is >= '\u0e00' and <= '\u0e7f') ? "th" : null;
+        int latin=text.Count(c=>c is >= 'a' and <= 'z' or >= 'A' and <= 'Z');
+        int nonLatin=text.Count(c=>char.IsLetter(c) && c>0x02ff);
+        bool mostlyLatin=latin>nonLatin*3;
+        string? detected = !mostlyLatin && text.Any(c => c is >= '\u3040' and <= '\u30ff') ? "ja" :
+            !mostlyLatin && text.Any(c => c is >= '\uac00' and <= '\ud7af') ? "ko" :
+            !mostlyLatin && text.Any(c => c is >= '\u4e00' and <= '\u9fff') ? "zh" :
+            !mostlyLatin && text.Any(c => c is >= '\u0400' and <= '\u04ff') ? "ru" :
+            !mostlyLatin && text.Any(c => c is >= '\u0600' and <= '\u06ff') ? "ar" :
+            !mostlyLatin && text.Any(c => c is >= '\u0900' and <= '\u097f') ? "hi" :
+            !mostlyLatin && text.Any(c => c is >= '\u0e00' and <= '\u0e7f') ? "th" : null;
         if (detected == "zh" && !new[] { p.FirstLanguage, p.SecondLanguage }.Contains("zh")) detected = "zh-Hant";
         if (detected == p.FirstLanguage) return p.SecondLanguage;
         if (detected == p.SecondLanguage) return p.FirstLanguage;

@@ -15,7 +15,7 @@ int wmain(int argc,wchar_t** argv){
         if(argc>2 && std::wstring(argv[2])==L"readonly")style|=ES_READONLY;
         if(argc>2 && std::wstring(argv[2])==L"password")style|=ES_PASSWORD;
         HWND edit=CreateWindowExW(0,MSFTEDIT_CLASS,L"Line one\r\nLine two",style,0,0,750,300,host,nullptr,GetModuleHandle(nullptr),nullptr);
-        SetForegroundWindow(host);SetFocus(edit);SendMessageW(edit,EM_SETSEL,0,8);
+        SetWindowPos(host,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW);SetForegroundWindow(host);SetFocus(edit);SendMessageW(edit,EM_SETSEL,0,8);
         MSG message{};while(GetMessageW(&message,nullptr,0,0)>0){TranslateMessage(&message);DispatchMessageW(&message);}return 0;
     }
     CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);
