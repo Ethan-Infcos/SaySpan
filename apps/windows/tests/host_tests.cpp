@@ -65,7 +65,7 @@ int wmain(){
         // A Shift+letter chord must pass through and must not toggle the language.
         key('A');shiftUp();
         if(!directEnglish())throw std::runtime_error("Shift letter chord changed the language");
-        shiftDown();shiftUp();key('N');key('I');key(VK_SPACE);
+        shiftDown();shiftUp();key('N');key('I');key('H');key('A');key('O');key(VK_SPACE);
         shiftDown();key(VK_LEFT);shiftUp();key(VK_BACK);key(VK_RETURN);
         // Selection with Shift remains Chinese mode; the next spelling is still consumed.
         key('H');key('A');key('O');key(VK_SPACE);key(VK_RETURN);
