@@ -8,6 +8,16 @@ void verify(HRESULT hr,const char* message){if(FAILED(hr)){std::cerr<<message<<"
 void pump(){MSG message{};while(PeekMessageW(&message,nullptr,0,0,PM_REMOVE)){TranslateMessage(&message);DispatchMessageW(&message);}}
 void settle(){for(int i=0;i<100;++i){pump();Sleep(10);}}
 int wmain(int argc,wchar_t** argv){
+    if(argc>1 && std::wstring(argv[1])==L"--selection-fixture") {
+        LoadLibraryW(L"Msftedit.dll");
+        HWND host=CreateWindowExW(0,L"STATIC",L"SaySpan selection fixture",WS_OVERLAPPEDWINDOW|WS_VISIBLE,100,100,800,400,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
+        DWORD style=WS_CHILD|WS_VISIBLE|ES_MULTILINE;
+        if(argc>2 && std::wstring(argv[2])==L"readonly")style|=ES_READONLY;
+        if(argc>2 && std::wstring(argv[2])==L"password")style|=ES_PASSWORD;
+        HWND edit=CreateWindowExW(0,MSFTEDIT_CLASS,L"Line one\r\nLine two",style,0,0,750,300,host,nullptr,GetModuleHandle(nullptr),nullptr);
+        SetForegroundWindow(host);SetFocus(edit);SendMessageW(edit,EM_SETSEL,0,8);
+        MSG message{};while(GetMessageW(&message,nullptr,0,0)>0){TranslateMessage(&message);DispatchMessageW(&message);}return 0;
+    }
     CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);
     try {
         HMODULE rich=LoadLibraryW(L"Msftedit.dll");if(!rich)throw std::runtime_error("RichEdit unavailable");

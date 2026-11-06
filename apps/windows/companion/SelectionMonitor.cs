@@ -58,7 +58,7 @@ sealed class SelectionMonitor : IDisposable
             var node = start;
             for (int depth = 0; node != null && depth < 9; depth++, node = TreeWalker.ControlViewWalker.GetParent(node)) {
                 var properties = node.Current;
-                if (properties.ProcessId == Environment.ProcessId || properties.IsPassword || properties.ControlType == ControlType.Edit) break;
+                if (properties.ProcessId == Environment.ProcessId || properties.IsPassword) break;
                 GetWindowThreadProcessId(foreground, out uint pid);
                 if (properties.ProcessId != pid) break;
                 if (!node.TryGetCurrentPattern(TextPattern.Pattern, out var value)) continue;

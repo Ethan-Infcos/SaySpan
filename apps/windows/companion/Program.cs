@@ -8,7 +8,7 @@ static class Program
 {
     public static readonly string PipeName = "SaySpan.v1." + WindowsIdentity.GetCurrent().User!.Value + "." + System.Diagnostics.Process.GetCurrentProcess().SessionId;
     [STAThread] static void Main(string[] args) {
-        if (args.Contains("--self-test")) { CompanionTests.Run(); return; }
+        if (args.Contains("--self-test")) { CompanionTests.Run(args); return; }
         using var mutex = new Mutex(true, @"Local\" + PipeName, out bool first);
         if (!first) {
             if (!args.Contains("--background")) {

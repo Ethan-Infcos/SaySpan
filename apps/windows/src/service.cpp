@@ -57,7 +57,8 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
     unsigned translationRevision=0;
     ULONGLONG translationDue=0;
     std::u16string translationSource;
-    bool wasPending=false;
+    bool wasPending=false, publishedActivity=false;
+    ULONGLONG activityPublishedAt=0;
     std::wstring engineLanguage;
     HKL layout=nullptr;
     std::wstring layoutLanguage;
@@ -76,7 +77,9 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
     }
     void tick() {
         try {
-            bool visible=focused && composition && editor && editor->active();CompositionActivity(visible);
+            bool visible=focused && composition && editor && editor->active();
+            if(visible && GetTickCount64()-activityPublishedAt>=500) {CompositionActivity(true);publishedActivity=true;activityPublishedAt=GetTickCount64();}
+            else if(!visible && publishedActivity) {CompositionActivity(false);publishedActivity=false;}
             if(!visible)return;
             if(translationDue && GetTickCount64()>=translationDue) {translationDue=0;bridge.submit(translationRevision,editor->language,wide(translationSource));}
             if(auto result=bridge.take();result && result->revision==translationRevision && !editor->pending()) {

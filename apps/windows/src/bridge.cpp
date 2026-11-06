@@ -16,6 +16,10 @@ TranslationBridge::TranslationBridge():worker([this]{run();}) {}
 TranslationBridge::~TranslationBridge() { stopping=true; ++serial; wake.notify_one(); if(worker.joinable())worker.join(); }
 void TranslationBridge::launch(bool settings) {
     if(GetEnvironmentVariableW(L"SAYSPAN_TEST_NO_COMPANION",nullptr,0))return;
+    if(!settings) {
+        auto pipe=PipeName();
+        if(pipe.size()>9) {auto name=L"Local\\"+pipe.substr(9);HANDLE running=OpenMutexW(SYNCHRONIZE,FALSE,name.c_str());if(running){CloseHandle(running);return;}}
+    }
     auto path=ModuleFolder()/L"companion"/L"SaySpan.exe";
     ShellExecuteW(nullptr,L"open",path.c_str(),settings?L"--settings":L"--background",path.parent_path().c_str(),SW_SHOWNOACTIVATE);
 }
