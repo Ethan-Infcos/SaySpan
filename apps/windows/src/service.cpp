@@ -118,7 +118,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
         if((_wcsicmp(name,L"Edit")==0 || _wcsnicmp(name,L"RichEdit",8)==0) && (GetWindowLongPtrW(window,GWL_STYLE)&ES_PASSWORD)) return false;
         return true;
     }
-    std::optional<Input> key(WPARAM vk, LPARAM flags) {
+    std::optional<Input> key(WPARAM vk, LPARAM flags,bool consume=false) {
         bool shift=(GetKeyState(VK_SHIFT)&0x8000)!=0;
         bool control=(GetKeyState(VK_CONTROL)&0x8000)!=0;
         bool alt=(GetKeyState(VK_MENU)&0x8000)!=0;
@@ -130,7 +130,7 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
             }
             return std::nullopt;
         }
-        auto language=active() && editor?editor->language:InputLanguage(mode.chinese);
+        auto language=active() && editor?editor->language:InputLanguage(mode.secondLanguage);
         if((language==L"en" || language==L"ko") && !active()) return std::nullopt;
         if(active()) {
             switch(vk) {
@@ -145,7 +145,8 @@ class Service final : public ITfTextInputProcessorEx, public ITfKeyEventSink,
         }
         BYTE state[256]{}; if(!GetKeyboardState(state)) return std::nullopt;
         wchar_t text[8]{};
-        int count=ToUnicodeEx(static_cast<UINT>(vk),static_cast<UINT>((flags>>16)&0xff),state,text,8,4,inputLayout(language));
+        int count=ToUnicodeEx(static_cast<UINT>(vk),static_cast<UINT>((flags>>16)&0xff),state,text,8,consume?0:4,inputLayout(language));
+        if(count<0 && !CandidateLanguage(language)) return Input{Key::Text,{}};
         if(count>0 && text[0]>=L' ' && (active() || text[0]>L' ')) return Input{Key::Text,utf16(std::wstring(text,count)),shift};
         return std::nullopt;
     }
@@ -345,9 +346,10 @@ public:
             if(!allowed(ctx)) { mode.cancelPress(); return S_OK; }
             observeKeyDown(vk);
             if(isShift(vk)) return S_OK;
-            auto input=key(vk,flags); bool clip=clipboardKey(vk);
+            auto input=key(vk,flags,true); bool clip=clipboardKey(vk);
+            if(input && input->key==Key::Text && input->text.empty()) {*eaten=TRUE;return S_OK;}
             if(!input && !clip) { if(active() && vk!=VK_SHIFT && vk!=VK_CONTROL && vk!=VK_MENU && vk!=VK_CAPITAL) finishLater(ctx); return S_OK; }
-            auto language=active() && editor?editor->language:InputLanguage(mode.chinese);
+            auto language=active() && editor?editor->language:InputLanguage(mode.secondLanguage);
             if(!engine || (!active() && engineLanguage!=language)) {
                 editor.reset();engine=std::make_unique<RimeEngine>(language);engineLanguage=language;editor=std::make_unique<Editor>(*engine);
             }

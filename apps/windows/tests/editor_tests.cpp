@@ -21,8 +21,8 @@ public:
 };
 int main(){try {
     ModeSwitch mode;
-    check(!mode.chinese,"Windows defaults to direct English");
-    mode.down(100,false);check(mode.up(200),"short Shift tap switches");mode.toggle();check(mode.chinese,"Shift selects Chinese");
+    check(!mode.secondLanguage,"Windows defaults to direct English");
+    mode.down(100,false);check(mode.up(200),"short Shift tap switches");mode.toggle();check(mode.secondLanguage,"Shift selects Chinese");
     mode.down(300,false);mode.otherKey();check(!mode.up(400),"Shift letter chord does not switch");
     mode.down(500,false);check(!mode.up(1100),"long Shift hold does not switch");
     mode.down(1200,true);check(!mode.up(1300),"Ctrl Shift does not switch");

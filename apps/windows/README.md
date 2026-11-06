@@ -1,68 +1,88 @@
-# SaySpan for Windows — input preview
+# SaySpan for Windows — 0.2.0 preview
 
-This preview implements English direct typing and Simplified Chinese pinyin sentence
-composition. It does not yet include translation, model settings, selection translation,
-other typing engines, cloud requests, or a learned dictionary.
+Windows 10 22H2 or Windows 11, **x64 only**. ARM64 and 32-bit applications are not
+supported in this preview. The installer is an unsigned development build.
 
-## Install
+## Install and open Settings
 
-Use the **x64** installer for Intel/AMD Windows 10 (22H2) or Windows 11.
-ARM64 is deferred; no ARM64 or 32-bit installer is provided in this preview.
-The preview is a development build, not a publicly trusted signed release. Windows
-may display an unknown-publisher or SmartScreen warning. Do not disable system
-protection to install it.
+1. Finish any draft, close applications using the previous preview, and run the
+   installer. Windows may require signing out or restarting if the input DLL is
+   still loaded. Do not test a new installer against an old DLL still in memory.
+2. Add **SaySpan** under the Chinese (Simplified) keyboard options in Windows
+   Settings if Windows has not already listed it. Use **Win+Space** to select it.
+   This registration category does not restrict your configured language pair.
+3. Open **Start → SaySpan Preview → SaySpan Settings**, or double-click its icon
+   in the notification area. The companion also starts at sign-in.
+4. In **Models**, choose Ollama and a locally installed model, or a compatible API
+   with a base URL, model ID, optional API key, and reasoning effort. Use the
+   refresh buttons to list models, then **Test translation** and **Save**.
+   The installer includes the companion runtime, but does not install Ollama or
+   download a model. Online translation sends source text to the selected service.
 
-1. Finish any active composition and close the apps you will test.
-2. Run the matching setup executable; administrator access is needed for TSF registration.
-3. Use **Win + Space** to choose **SaySpan (Preview)**. If missing, open Windows language
-   settings, add **Chinese (Simplified, China)**, and add **SaySpan (Preview)** as a
-   keyboard in that language's options. Sign out and back in if Windows has cached
-   the old input-source list.
-4. Test in a native desktop app first. Store apps, password fields, elevated apps,
-   games, and legacy input controls are outside this preview's verified scope.
+## Input
 
-The installer never changes your default input source. Remove the preview through
-Windows **Installed apps → SaySpan (Preview) → Uninstall**. Close apps using it first;
-Windows may require a restart to remove a loaded input-service DLL.
+- The first configured language is initially active. **Tap Shift** to switch
+  between the first and second languages. Holding Shift for a letter or shortcut
+  does not switch. Caps Lock controls capitalization only.
+- English types directly into the application, including **Shift+ABC** and `!`.
+  Chinese and Japanese open the sentence/candidate panel.
+- Type pinyin or Japanese romaji, use arrows to choose a candidate, then Space.
+  Candidates have natural widths; long candidates wrap rather than use ellipses.
+- **PgUp/PgDn** first expands the grid to three rows; subsequent presses page.
+  Arrows navigate the grid and cross page boundaries. Number keys select within
+  the highlighted row. Settings controls 3–9 candidates per row, default 5.
+- When no candidate is pending, arrows move the sentence caret; Shift+arrows
+  extend a selection. **Ctrl+A/C/X/V/Z** select, copy, cut, paste, and undo within
+  the draft. Clearing the sentence closes the panel.
+- **Enter** with pending spelling adds those letters to the sentence. Enter after
+  candidate confirmation inserts the source sentence. **Tab** inserts a ready
+  translation; it preserves the draft while translation is pending or unavailable.
+- Shift+letters can add uppercase Latin words to a sentence. Chinese-mode
+  punctuation uses Chinese marks. Tapping Shift during composition confirms and
+  inserts the selected source before switching language.
+- Common candidate choices are remembered locally and ranked on subsequent input.
+  Disable or clear this memory in Input settings.
 
-## Typing
+## Translation and selection
 
-| Action | Behavior |
-| --- | --- |
-| Initial mode | English direct typing, no sentence panel |
-| Tap Shift | Switch between Chinese pinyin and English direct typing |
-| Tap Shift during a sentence | Confirm the current candidate and insert the sentence, then switch |
-| Hold Shift with a letter or arrow | Normal uppercase/selection behavior; does not switch language |
-| Caps Lock | Normal capitalization; does not switch language |
-| Space / 1–5 / click | Choose a candidate and keep building the sentence |
-| Arrow keys with pending pinyin | Move candidate highlight |
-| Page Up / Page Down | Previous / next candidate page |
-| Arrow keys after choosing a candidate | Move the sentence caret |
-| Shift + arrows | Select part of the resolved sentence |
-| Home / End | Beginning / end of resolved sentence |
-| Enter with pending pinyin | Keep the typed Latin letters in the sentence, removing pinyin separators |
-| Enter with no pending pinyin | Insert the completed sentence |
-| Tab | Confirm/insert the sentence and let the app handle Tab |
-| Shift + letters | Add uppercase Latin text to the current sentence |
-| Ctrl + A / C / X / V / Z | Select, copy, cut, paste, undo within the sentence |
-| Backspace / Delete | Delete spelling, selected text, or text next to the caret |
-| Escape | Clear pending spelling, collapse selection, or cancel the current composition |
+Configure **First language** and **Second language** in Languages. Composition
+and selected text are translated into the other language. Selection between two
+Latin languages is identified by the translation model within the same request.
+The shared prompt is editable. Formatting rules preserve explicit line breaks,
+blank lines, indentation, lists, Markdown, and code; actual fidelity depends on
+the selected model.
 
-An empty sentence closes the panel. Changing focus confirms the source text in the
-original document. Cancelling restores text that was selected before composition.
-The candidate window does not take keyboard focus.
+Outside an editable field, select text to show a stationary **Translate** button.
+Enable **Automatic** in the card or Settings to show translations immediately.
+The copy control is at the top right. Click elsewhere to dismiss; reselect to
+retry. Source text is never replaced. Translation is suppressed during composition
+and inside editable/password fields.
 
-### First test
+Selection requires the application to expose a read-only selection through
+Windows UI Automation. Some custom controls, protected/elevated applications,
+and browser content do not expose this data. No clipboard-copy fallback runs
+silently. The native input service keeps working if the companion is unavailable.
 
-Tap **Shift** to enter Chinese mode, type `nihao`, press **Space**, hold **Shift** to type `CAD`,
-type `ceshi`, then press **Space** and **Enter**. The result should contain Chinese,
-`CAD`, and Chinese again. Try Shift + Left before Enter to select and replace part
-of the sentence. Tap **Shift** again and verify `hello` enters directly.
+## Languages and interface
 
-Report the installer architecture, Windows version, application name/version,
-exact keystrokes, expected result, and actual result. Do not include private text.
+Simplified/Traditional Chinese pinyin and Japanese romaji have candidate engines.
+French, German, Spanish, Portuguese, Italian, Russian, Arabic, Hindi, Thai,
+Vietnamese and Indonesian use Windows keyboard layouts where available. Korean
+is supported as a translation language; Korean composition still needs Windows'
+Korean input method. This matches the current macOS engine boundary rather than
+claiming that a translation language automatically has a typing engine.
 
-## Build
+Settings and panels support English and Simplified Chinese, following Windows'
+display language by default. Choose a display language in Interface settings.
 
-See [Windows development](../../docs/development/windows.md). This preview is separate
-from the existing macOS implementation; installing it has no effect on macOS settings.
+## Data and uninstall
+
+Preferences and frequency counts are stored under `HKCU\Software\SaySpan`.
+API keys are scoped to their exact normalized endpoint and encrypted with Windows
+DPAPI for the current user. No API key, personal dictionary, source text, or
+private deployment configuration is included in the installer.
+
+Uninstall **SaySpan (Preview)** from Windows Installed apps. Finish drafts and
+close applications using the IME first. Personal preferences are retained for
+reinstallation. To remove personal data too, remove `HKCU\Software\SaySpan` and
+`%LOCALAPPDATA%\SaySpan` after uninstalling.

@@ -36,6 +36,7 @@ sealed class SelectionMonitor : IDisposable
                 bool mouseDown = GetAsyncKeyState(1) < 0, shift = GetAsyncKeyState(0x10) < 0;
                 var foreground = GetForegroundWindow(); GetWindowThreadProcessId(foreground, out uint process);
                 if (process == Environment.ProcessId) { wasMouseDown = mouseDown; wasShift = shift; continue; }
+                Post(() => { if (currentWindow != IntPtr.Zero && currentWindow != foreground) Clear(); });
                 if (!Store.Read().SelectionEnabled || Store.Composing()) { Post(Clear); settledAt = 0; wasMouseDown = mouseDown; wasShift = shift; continue; }
                 if (mouseDown && !wasMouseDown) Post(Clear);
                 if (wasMouseDown && !mouseDown || wasShift && !shift) { GetCursorPos(out selectedAt); settledAt = Environment.TickCount64 + 350; }
@@ -64,7 +65,7 @@ sealed class SelectionMonitor : IDisposable
                 var pattern = (TextPattern)value;
                 foreach (var range in pattern.GetSelection()) {
                     var readOnly = range.GetAttributeValue(TextPattern.IsReadOnlyAttribute);
-                    if (readOnly is bool editable && !editable) continue;
+                    if (readOnly is not true) continue;
                     var text = range.GetText(8193);
                     if (string.IsNullOrWhiteSpace(text) || text.Length > 8192) continue;
                     // Use the first selection rectangle once; never chase later mouse movement.

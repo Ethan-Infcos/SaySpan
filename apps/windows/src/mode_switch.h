@@ -5,7 +5,7 @@ namespace sayspan {
 // Shift used in a chord, or held for longer than 500 ms, never changes the mode.
 class ModeSwitch {
 public:
-    bool chinese = false;
+    bool secondLanguage = false;
     bool pressed = false;
     bool chord = false;
     void down(uint64_t time, bool modified) {
@@ -21,7 +21,7 @@ public:
         pressed = false; chord = false; return tap;
     }
     void cancelPress() { pressed = chord = false; }
-    void toggle() { chinese = !chinese; }
+    void toggle() { secondLanguage = !secondLanguage; }
 private:
     uint64_t started = 0;
 };

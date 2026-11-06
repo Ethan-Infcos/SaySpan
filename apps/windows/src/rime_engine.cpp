@@ -51,7 +51,7 @@ bool InitializeRime(const std::filesystem::path& data,const std::filesystem::pat
     RIME_STRUCT(RimeTraits,traits);
     traits.shared_data_dir=sharedPath.c_str(); traits.user_data_dir=userPath.c_str();
     traits.prebuilt_data_dir=buildPath.c_str(); traits.distribution_name="SaySpan";
-    traits.distribution_code_name="sayspan_windows"; traits.distribution_version="0.1.0";
+    traits.distribution_code_name="sayspan_windows"; traits.distribution_version="0.2.0";
     traits.app_name="rime.sayspan"; traits.min_log_level=4; traits.log_dir="";
     api->setup(&traits); api->initialize(&traits);
     if (deploy) {

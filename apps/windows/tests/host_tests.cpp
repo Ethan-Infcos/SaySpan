@@ -7,7 +7,7 @@ using namespace sayspan;
 void verify(HRESULT hr,const char* message){if(FAILED(hr)){std::cerr<<message<<": HRESULT 0x"<<std::hex<<static_cast<unsigned long>(hr)<<"\n";throw std::runtime_error(message);}}
 void pump(){MSG message{};while(PeekMessageW(&message,nullptr,0,0,PM_REMOVE)){TranslateMessage(&message);DispatchMessageW(&message);}}
 void settle(){for(int i=0;i<100;++i){pump();Sleep(10);}}
-int wmain(){
+int wmain(int argc,wchar_t** argv){
     CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);
     try {
         HMODULE rich=LoadLibraryW(L"Msftedit.dll");if(!rich)throw std::runtime_error("RichEdit unavailable");
@@ -81,6 +81,12 @@ int wmain(){
         shiftDown();key(VK_LEFT);shiftUp();key(VK_BACK);key(VK_RETURN);
         // Selection with Shift remains Chinese mode; the next spelling is still consumed.
         key('H');key('A');key('O');key(VK_SPACE);key(VK_RETURN);
+        if(argc>1 && std::wstring(argv[1])==L"--translation") {
+            key('N');key('I');key('H');key('A');key('O');key(VK_SPACE);
+            settle();settle();key(VK_TAB);settle();
+            GetWindowTextW(edit,output,256);
+            if(std::wstring(output).find(L"__TRANSLATED__")==std::wstring::npos)throw std::runtime_error("Companion translation did not reach the host through Tab");
+        }
         SetKeyboardState(previous);
         profiles->DeactivateProfile(TF_PROFILETYPE_INPUTPROCESSOR,ProfileLanguage,ServiceId,ProfileId,nullptr,TF_IPPMF_FORPROCESS);
         languages->ChangeCurrentLanguage(originalLanguage);pump();DestroyWindow(window);manager->Deactivate();

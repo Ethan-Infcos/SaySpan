@@ -1,6 +1,6 @@
 # Windows development
 
-The first Windows preview owns its implementation under `apps/windows/`. It targets
+The Windows preview owns its implementation under `apps/windows/`. It targets
 Windows 10 22H2 / Windows 11 x64. ARM64 is deferred after native application-routing
 tests failed on its runner; no ARM64 installer is shipped. There is no x86 support.
 
@@ -12,19 +12,19 @@ tests failed on its runner; no ARM64 installer is shipped. There is no x86 suppo
   keyboard routing and explicit clipboard commands.
 - `src/panel.*`: nonactivating native candidate/sentence window.
 - `src/registration.cpp`, `register_main.cpp`: TSF registration and verification.
-- `resources/`: minimal static pinyin schema. No personal dictionary is enabled yet.
+- `resources/`: Chinese schemas; Japanese and OpenCC data reuse pinned macOS resources.
 - `tools/`: pinned dependency builds, validation and packaging.
 - `packaging/`: Inno Setup installer and uninstaller.
 - `tests/`: portable editor checks, native Rime and real RichEdit integration checks.
 
-There is no networking, model worker, credential storage or translation UI yet.
-These must stay outside synchronous key processing when added. Do not embed network
-requests in the TSF DLL: it runs inside the client application's process.
+Translation, settings, credential storage, and selection monitoring live in the
+companion process. Do not embed network requests in the TSF DLL: it runs inside
+the client application's process.
 
 ## Build on Windows
 
 Install Visual Studio 2022/2026 C++ build tools, the matching x64 or ARM64 tools,
-Windows SDK, CMake 3.24+, Python 3.12+, and Inno Setup 6.6+. Run from the repository
+Windows SDK, CMake 3.24+, Python 3.12+, .NET 8 SDK, and Inno Setup 6.6+. Run from the repository
 root in a developer PowerShell on the target architecture:
 
 ```powershell
@@ -59,8 +59,8 @@ ctest --test-dir .build/windows-editor --output-on-failure
 
 ## Lifecycle and limits
 
-Windows uses a short, unmodified Shift tap to switch Chinese/English; it starts in
-English direct mode. Shift used in a chord, or held longer than 500 ms, does not
+Windows uses a short, unmodified Shift tap to switch the configured language pair;
+it starts in the first language (English by default). Shift used in a chord, or held longer than 500 ms, does not
 change the language. Shift + arrows select sentence text, and Shift + letters retain
 normal capitalization. Caps Lock only controls capitalization. This intentionally
 differs from the macOS Caps Lock contract. Tapping Shift during composition confirms
@@ -76,7 +76,7 @@ caret character into the text. Clipboard access occurs only for explicit shortcu
 Rime is initialized once per host process and serialized through its adapter lock.
 It reads precompiled dictionaries from the installed payload. Per-process writable
 scratch data is under `%LOCALAPPDATA%\SaySpan\Runtime`; it contains no learned words
-because this preview disables user dictionaries. Rime pins the loaded DLL until
+because Rime user dictionaries are disabled. Frequencies are stored separately in HKCU. Rime pins the loaded DLL until
 process exit, avoiding finalization inside the Windows loader lock. Close client
 apps before replacing or removing the installation.
 
@@ -84,7 +84,7 @@ This is an unsigned development preview for native desktop applications, not a
 production release. It does not advertise secure-mode or UI-less TSF capabilities.
 Password fields and disabled input contexts pass through. Store/app-container,
 legacy, elevated and game compatibility need separate validation. Public signing,
-ARM64EC/ARM64X host interoperability, accessibility, themes, learning and updates
+ARM64EC/ARM64X host interoperability, additional accessibility coverage, themes and updates
 remain future work. Do not disable Windows protections or auto-trust a certificate.
 
 ## Manual acceptance
@@ -95,3 +95,40 @@ x64. Check candidate position at multiple DPI settings, mixed-text
 editing, selection replacement, Shift switching while spelling is pending, switching apps,
 undo/copy/paste and uninstall. Record unsupported hosts explicitly; passing native
 CI is not a claim that every Windows application works.
+
+## Windows 0.2 companion and translation boundary
+
+`companion/Core` is a portable .NET translation/protocol library with synthetic
+provider tests. `companion` is a self-contained x64 desktop process containing
+Settings, a notification-area entry, UI Automation selection monitoring, and the
+HTTP client. It has no keyboard hook and never receives API credentials from the
+input DLL. User-facing branding comes from the shared Branding.json resource.
+
+The native TSF DLL retains input, Rime, draft editing, and candidate rendering.
+A bounded worker exchanges length-prefixed UTF-16 frames with a same-user,
+same-session named pipe. The client verifies the server executable path before
+sending source text. HTTP requests run only in the companion. Draft changes
+invalidate request generations; disconnects cancel provider work, and stale
+results cannot replace current drafts. Provider failure leaves the source intact.
+No credentials or source text are logged. Redirects are disabled for API requests.
+
+Preferences are independent registry values. Settings writes only changed fields;
+card toggles cannot be reverted by an unrelated Save from an older Settings view.
+API credentials use current-user DPAPI and an endpoint-derived lookup key.
+Selection monitoring runs off the UI thread, requires read-only UI Automation
+text, and checks an expiring composition activity signal. It never synthesizes
+copy or pastes into source applications.
+
+Rime sessions remain process-local. Shared LevelDB dictionaries are deliberately
+not opened concurrently by every TSF host. Candidate frequency ranking persists
+small per-spelling counts in HKCU, with an off switch and reset. The frontend
+browses the first 200 Rime candidates with configurable compact/expanded pages.
+Japanese tables and OpenCC data are copied from pinned, licensed dependencies.
+
+The pipeline additionally publishes the self-contained companion, runs its
+settings/credential/state-coherence self-tests, and performs a real RichEdit TSF
+→ companion → synthetic loopback HTTP → translated Tab insertion integration
+check. It then installs, verifies, and uninstalls the actual setup executable.
+These isolated checks do not establish compatibility with every Windows app;
+Notepad, Edge/Chrome, Office, Electron apps, display scaling, and actual provider
+latency require desktop testing. ARM64 remains deferred.

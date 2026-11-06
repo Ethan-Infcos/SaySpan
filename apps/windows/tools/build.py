@@ -54,6 +54,7 @@ def main():
     run('dotnet', 'publish', companion / 'SaySpan.Companion.csproj', '--configuration', 'Release', '--runtime', 'win-x64', '--self-contained', 'true', '-o', payload / 'companion')
     run(payload / 'companion/SaySpan.exe', '--self-test')
     shutil.copytree(data, payload / 'data')
+    run('python', ROOT / 'tools/translation_integration.py', binary, payload)
     shutil.copytree(prefix / 'licenses', payload / 'licenses')
     for name in ('LICENSE', 'THIRD_PARTY_NOTICES.md'):
         shutil.copy2(REPO / name, payload / name)
